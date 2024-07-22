@@ -21,9 +21,7 @@ class Login extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Center(
-          child: Text('mini ML'),
-        ),
+       const Text('mini ML', textAlign: TextAlign.center ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

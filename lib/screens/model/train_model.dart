@@ -25,6 +25,8 @@ class TrainModel extends StatefulWidget {
 }
 
 class _TrainModelState extends State<TrainModel> {
+  String _label = '';
+
   void _back() {
     Navigator.pop(context);
   }
@@ -35,16 +37,6 @@ class _TrainModelState extends State<TrainModel> {
 
   void _handleModel(AppProvider appProvider) async {
     try {
-      String message = widget.mode == 'create'
-          ? "Are you sure you want to train and create the model: ${widget.model.name}?"
-          : "Are you sure you want to re-train the model: ${widget.model.name}?";
-
-      bool? isCreateModel = await Dialogs.showConfirmDialog(context, message);
-
-      if (isCreateModel == false) {
-        return;
-      }
-
       var projectId = appProvider.projectProvider.id;
       User? currentUser = appProvider.auth.currentUser;
 
@@ -53,21 +45,25 @@ class _TrainModelState extends State<TrainModel> {
         return;
       }
 
+      
+      appProvider.setIsLoading(true);
       if (widget.mode == 'create') {
+        widget.model.label = _label;
+        setState(() {
+          _label = '';
+        });
         await APIServices()
             .createResource(projectId, widget.model, currentUser);
-      } else if (widget.mode == 'train') {
-        // await APIServices().trainModel(projectId, model, currentUser);
       } else {
-        throw Exception("Invalid Mode");
-      }
-
+        // await APIServices().trainModel(projectId, model, currentUser);
+      } 
+      appProvider.setIsLoading(false);
       _showSnackBar("Model Created Successfully");
       await appProvider.fetchResources(projectId);
       _exit();
     } catch (error) {
-      print(error.toString());
-      throw Exception(error.toString());
+      appProvider.setIsLoading(false);
+      _showSnackBar(error.toString());
     }
   }
 
@@ -98,9 +94,8 @@ class _TrainModelState extends State<TrainModel> {
                 leadingIcon: const Icon(Icons.search),
                 onSelected: (selectedValue) {
                   if (selectedValue != null) {
-                    print(selectedValue);
                     setState(() {
-                      widget.model.label = selectedValue;
+                      _label = selectedValue;
                     });
                   }
                 },
@@ -131,7 +126,7 @@ class _TrainModelState extends State<TrainModel> {
             horizontal: 4,
           ),
           child: TextButton(
-            onPressed: widget.model.label.isNotEmpty
+            onPressed: _label.isNotEmpty
                 ? () {
                     _handleModel(appProvider);
                   }
@@ -148,7 +143,7 @@ class _TrainModelState extends State<TrainModel> {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
       return Scaffold(
         appBar: _buildAppBar(appProvider),
-        body: _buildBody(appProvider),
+        body: appProvider.isLoading ? const Center(child: CircularProgressIndicator.adaptive()) : _buildBody(appProvider),
       );
     });
   }

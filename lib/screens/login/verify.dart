@@ -1,54 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/utils/constants.dart';
-import 'package:provider/provider.dart';
 
 class Verify extends StatelessWidget {
   const Verify({super.key});
 
-  _exit(BuildContext context, AppProvider appProvider) {
+  _exit(BuildContext context) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
   }
 
-  _buildBody(BuildContext context, AppProvider appProvider) {
-    return Padding(
-        padding: EdgeInsets.symmetric(
-            vertical: Constants.getPaddingVertical(context),
-            horizontal: Constants.getPaddingHorizontal(context)),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Center(
-              child:
-                  Text("Please verify your email to complete registration.")),
-          const Center(
-              child: Text(
-                  "Check your spam box if you don't see it in your inbox.")),
-          SizedBox(height: Constants.getPaddingVertical(context)),
-          ElevatedButton(
+  _buildBody(BuildContext context) {
+    return Column(
+    
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+         padding: EdgeInsets.symmetric(
+            horizontal: Constants.getPaddingHorizontal(context)
+            ),
+            child: 
+        const Center(child:  Text('Verify your email address to enjoy all of mini ML features!'))),
+        TextButton(
               onPressed: () {
-                _exit(context, appProvider);
+                _exit(context);
               },
-              child: const Text('Exit'))
-        ]));
+              child: const Text('Close'),
+            ),
+      ]
+    );
   }
 
-  _buildAppBar(BuildContext context, AppProvider appProvider) {
+  _buildAppBar(BuildContext context) {
     return AppBar(
         leading: IconButton(
             icon: const Icon(Icons.clear_sharp),
             onPressed: () {
-              _exit(context, appProvider);
+              _exit(context);
             }),
+            title: const Text('Verify Email'),
         automaticallyImplyLeading: false,
         centerTitle: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(builder: (context, appProvider, _) {
-      return Scaffold(
-          appBar: _buildAppBar(context, appProvider),
-          body: _buildBody(context, appProvider));
-    });
+    return Scaffold(appBar: _buildAppBar(context), body: _buildBody(context));
   }
 }

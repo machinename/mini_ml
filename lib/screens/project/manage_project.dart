@@ -20,11 +20,17 @@ class _ManageProjectState extends State<ManageProject> {
     Navigator.pop(context);
   }
 
+  void _exit() {
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+  }
+
   void _deleteProject(AppProvider appProvider) async {
     try {
       var project = appProvider.projectProvider;
       await appProvider.deleteProject(project);
+      appProvider.setProjectProviderEmpty();
       await appProvider.fetchProjects();
+      _exit();
     } catch (e) {
       _showSnackBar(e.toString());
     }

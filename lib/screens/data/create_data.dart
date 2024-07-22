@@ -35,13 +35,6 @@ class _CreateDataState extends State<CreateData> {
 
   void _createData(AppProvider appProvider) async {
     try {
-      bool? isCreateData = await Dialogs.showConfirmDialog(context,
-          "Are you sure you want to create the data resource: ${_nameController.text}?");
-
-      if (isCreateData == false) {
-        return;
-      }
-
       Data data = Data(
         name: _nameController.text.trim(),
         description: _descriptionController.text,
@@ -55,19 +48,24 @@ class _CreateDataState extends State<CreateData> {
         return;
       }
 
+      appProvider.setIsLoading(true);
       bool resourceExist =
           await appProvider.checkForExisitingResource(projectId, data);
       if (resourceExist) {
-        _showSnackBar("Data Already Exists");
+        appProvider.setIsLoading(false);
+       _showSnackBar("Data with the same name already exists!");
         return;
-      } else {
-        await APIServices()
-            .createResource(projectId, data, user, dataPath: _dataSetPath);
-        await appProvider.fetchResources(projectId);
-        _showSnackBar("Data Created Successfully");
-        _back();
       }
+
+      await APIServices()
+          .createResource(projectId, data, user, dataPath: _dataSetPath);
+      await appProvider.fetchResources(projectId);
+      appProvider.setIsLoading(false);
+     
+      _back();
+      _showSnackBar("Data Created Successfully");
     } catch (error) {
+      appProvider.setIsLoading(false);
       _showSnackBar(error.toString());
       throw Exception(error.toString());
     }
@@ -278,7 +276,7 @@ class _CreateDataState extends State<CreateData> {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
       return Scaffold(
         appBar: _buildAppBar(appProvider),
-        body: _buildBody(appProvider),
+        body: appProvider.isLoading ? const Center( child:  CircularProgressIndicator()) : _buildBody(appProvider),
       );
     });
   }

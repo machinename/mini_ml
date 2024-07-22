@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/data.dart';
+import 'package:mini_ml/models/resource.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/data/data_description.dart';
 import 'package:mini_ml/screens/data/data_name.dart';
@@ -21,6 +22,9 @@ class _ManageDataState extends State<ManageData> {
     Navigator.pop(context);
   }
 
+  void _exit() {
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+  }
   void _pushToDataName() {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const DataName()));
@@ -31,137 +35,38 @@ class _ManageDataState extends State<ManageData> {
         MaterialPageRoute(builder: (context) => const DataDescription()));
   }
 
-  void _deleteProject(AppProvider appProvider) async {
+
+
+
+  void _handleDeleteData(AppProvider appProvider) async {
     try {
-      var project = appProvider.projectProvider;
-      await appProvider.deleteProject(project);
-      await appProvider.fetchProjects();
-    } catch (e) {
-      _showSnackBar(e.toString());
+      bool? isDeleteData = await Dialogs.showConfirmDialog(context,
+          "Are you sure you want to delete your data set? This action is irreversible!");
+
+      if (isDeleteData != true) {
+        return;
+      }
+
+      Data? data = appProvider.projectProvider.currentData;
+
+      if (data == null) {
+        _showSnackBar("Data not found");
+        return;
+      }
+
+      var projectId = appProvider.projectProvider.id;
+      await appProvider.deleteResource(projectId, data);
+      await appProvider.fetchResources(projectId);
+      _back();
+      _showSnackBar("Data Set Deleted Successfully");
+      appProvider.projectProvider.currentData = null;
+    } catch (error) {
+      _showSnackBar('Error Occured');
+      throw Exception(
+        error.toString(),
+      );
     }
   }
-
-  Future<String?> _showDeleteDataDialog(
-      BuildContext context, AppProvider appProvider) {
-    final TextEditingController projectController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text('Delete data: ${appProvider.projectProvider.name}'),
-              content: !_showDeleteDialog
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Are you sure you want to delete the project "${appProvider.projectProvider.name}"?',
-                          textAlign: TextAlign.left,
-                        ),
-                      ],
-                    )
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'To confirm, type "${appProvider.projectProvider.name}" in the box below.',
-                          textAlign: TextAlign.left,
-                        ),
-                        SizedBox(
-                            height: Constants.getPaddingVertical(context) - 4),
-                        Form(
-                          key: formKey,
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            controller: projectController,
-                            onChanged: (_) {
-                              setState(
-                                () {},
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                            height: Constants.getPaddingVertical(context) - 4),
-                        Text(
-                          'This will permanently delete the project "${appProvider.projectProvider.name}" and all of its assoicated resources.',
-                          textAlign: TextAlign.left,
-                        ),
-                      ],
-                    ),
-              actions: [
-                // if (!_showDeleteDialog)
-                TextButton(
-                  onPressed: !_showDeleteDialog
-                      ? () {
-                          setState(() {
-                            _showDeleteDialog = true;
-                          });
-                        }
-                      : null,
-                  child: const Text('YES'),
-                ),
-                TextButton(
-                  onPressed:
-                      projectController.text == appProvider.projectProvider.name
-                          ? () {
-                              _deleteProject(appProvider);
-                            }
-                          : null,
-                  child: const Text('DELETE'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // setState(() {
-                    //   _showDeleteDialog = false;
-                    // });
-                    Navigator.of(context).pop(null);
-                    // _back();
-                  },
-                  child: const Text('CANCEL'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // void _deleteData(AppProvider appProvider) async {
-  //   try {
-  //     bool? isDeleteData = await Dialogs.showConfirmDialog(context,
-  //         "Are you sure you want to delete your data set? This action is irreversible!");
-
-  //     if (isDeleteData != true) {
-  //       return;
-  //     }
-
-  //     Data? data = appProvider.projectProvider.currentData;
-
-  //     if (data == null) {
-  //       _showSnackBar("Data not found");
-  //       return;
-  //     }
-
-  //     var projectId = appProvider.projectProvider.id;
-  //     await appProvider.deleteResource(projectId, data);
-  //     await appProvider.fetchResources(projectId);
-  //     _back();
-  //     _showSnackBar("Data Set Deleted Successfully");
-  //     appProvider.projectProvider.currentData = null;
-  //   } catch (error) {
-  //     _showSnackBar('Error Occured');
-  //     throw Exception(
-  //       error.toString(),
-  //     );
-  //   }
-  // }
 
   void _showSnackBar(String string) {
     Dialogs.showSnackBar(context, string);
@@ -230,11 +135,8 @@ class _ManageDataState extends State<ManageData> {
           IconButton(
               icon: const Icon(Icons.delete_sharp),
               onPressed: () {
-                setState(() {
-                  _showDeleteDialog = false;
-                });
-                _showDeleteDataDialog(context, appProvider);
-              }),
+                _handleDeleteData(appProvider);
+              })
         ]);
   }
 

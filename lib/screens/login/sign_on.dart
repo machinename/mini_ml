@@ -66,7 +66,7 @@ class _SignOnState extends State<SignOn> {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'machinename.dev/terms_of_service',
+        path: 'www.machinename.dev/terms_of_service',
       );
 
       if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
@@ -84,7 +84,7 @@ class _SignOnState extends State<SignOn> {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'machinename.dev/privacy_policy',
+        path: 'www.machinename.dev/privacy_policy',
       );
 
       if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
@@ -102,25 +102,25 @@ class _SignOnState extends State<SignOn> {
     Dialogs.showSnackBar(context, string);
   }
 
-  void _signOn(AppProvider appProvider) async {
+
+    void _signOn(AppProvider appProvider) async {
     try {
-      appProvider.setIsLoading(true);
+   
       if (_isSignIn) {
         await appProvider.signIn(
             _emailController.text, _passwordController.text);
-        await appProvider.fetchAppData();
-      } else {
+            _back();
+        } 
+       else {
         await appProvider.signUp(
             _emailController.text, _passwordController.text);
-        await appProvider.sendEmailVerification();
-        await appProvider.signOut();
-        _pushToVerfiy();
+            await appProvider.sendEmailVerification();
+          
+            _pushToVerfiy();
       }
-      appProvider.setIsLoading(false);
-      _back();
     } catch (error) {
       print(error.toString());
-      appProvider.setIsLoading(false);
+    
       _showSnackBar(
         error.toString(),
       );

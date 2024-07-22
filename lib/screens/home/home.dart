@@ -123,7 +123,14 @@ class _HomeState extends State<Home> {
           floatingActionButton: _currentTabIndex == 0
               ? null
               : FloatingActionButton(
-                  onPressed: () => _handleActionButton(appProvider),
+                  onPressed: () {
+                    if (appProvider.auth.currentUser?.emailVerified == false) {
+                      Dialogs.showMessageDialog(context, "Email Verification",
+                          "Please verify your email address to create a project!");
+                    } else {
+                      _handleActionButton(appProvider);
+                    }
+                  },
                   child: const Icon(Icons.add)),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           bottomNavigationBar: _buildBottomNavigationBar());
@@ -131,7 +138,12 @@ class _HomeState extends State<Home> {
   }
 
   void _handleActionButton(AppProvider appProvider) {
-    if (_currentTabIndex == 1 && appProvider.projectProvider.name.isEmpty) {
+    // if (appProvider.auth.currentUser?.emailVerified == false) {
+    //   Dialogs.showMessageDialog(context, "Email Verification",
+    //       "Please verify your email address to create a resource!");
+    // } else 
+    if (_currentTabIndex == 1 &&
+        appProvider.projectProvider.name.isEmpty) {
       Dialogs.showMessageDialog(context, "Create Model",
           "Please select a project first to create a model resource!");
     } else if (_currentTabIndex == 1 &&

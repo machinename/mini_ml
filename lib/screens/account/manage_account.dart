@@ -125,7 +125,7 @@ class _ManageAccountState extends State<ManageAccount> {
           onTap: () {
             _pushToUpdateAccountEmail();
           },
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
           // leading: const Icon(Icons.lock_sharp),
@@ -133,7 +133,7 @@ class _ManageAccountState extends State<ManageAccount> {
           onTap: () {
             _pushToSecurity();
           },
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
           // leading: const Icon(Icons.security_sharp),
@@ -141,7 +141,7 @@ class _ManageAccountState extends State<ManageAccount> {
           onTap: () {
             _pushToDataAndPrivacy();
           },
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_sharp),
         ),
 
         // ListTile(
@@ -156,7 +156,7 @@ class _ManageAccountState extends State<ManageAccount> {
         //   onTap: () => {
         //     _pushToSubscription(),
         //   },
-        //   trailing: const Icon(Icons.chevron_right),
+        //   trailing: const Icon(Icons.chevron_right_sharp),
         // ),
         const ListTile(
           // leading: const Icon(Icons.storage_sharp),
@@ -166,10 +166,11 @@ class _ManageAccountState extends State<ManageAccount> {
         ListTile(
           // leading: const Icon(Icons.notifications_sharp),
           title: const Text("Support"),
+          subtitle: const Text("support@machinename.dev"),
           onTap: () {
             _pushToSupport();
           },
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
           // leading: const Icon(Icons.settings_sharp),
@@ -177,15 +178,21 @@ class _ManageAccountState extends State<ManageAccount> {
           onTap: () {
             _pushToLegal();
           },
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_sharp),
         ),
-
-        // const ListTile(
-        //   title: Text(
-        //     "Settings",
-        //     style: TextStyle(fontWeight: FontWeight.bold),
-        //   ),
+        // if(appProvider.auth.currentUser?.emailVerified == false)
+        //   ListTile(
+        //   textColor: Colors.red,
+        //   iconColor: Colors.red,
+        //   title: const Text("Account Not Verified"),
+        //   onTap: () {
+        //     _sendEmailVerification();
+        //     _showSnackBar('Sending Email Verification, Please Verify & Sign In Again');
+        //   },
+        //   trailing: const Icon(Icons.chevron_right_sharp),
         // ),
+
+   
       ],
     );
   }
@@ -227,4 +234,6 @@ class _ManageAccountState extends State<ManageAccount> {
       },
     );
   }
+  
+  void _sendEmailVerification() {}
 }

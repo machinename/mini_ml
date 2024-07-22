@@ -99,7 +99,7 @@ class _ManageModelState extends State<ManageModel> {
                   : const Text('N/A'),
               onTap: () => _pushToModelDescription()),
           ListTile(
-            leading: _modelTypeIcon(appProvider),
+         
             title: const Text('Model Type'),
             subtitle: Text(model.modelType
                 .toString()
@@ -109,29 +109,29 @@ class _ManageModelState extends State<ManageModel> {
                     (match) => match.group(0)!.toUpperCase())),
           ),
           ListTile(
-            leading: const Icon(Icons.data_array),
+        
             title: const Text('Data Name'),
             subtitle: Text(model.dataName),
           ),
           ListTile(
-            leading: const Icon(Icons.label),
+          
             title: const Text('Label'),
             subtitle: Text(model.label),
           ),
           ListTile(
-            leading: const Icon(Icons.timeline),
+          
             title: const Text('Evaluation Metrics'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => (),
           ),
           ListTile(
-            leading: const Icon(Icons.analytics),
+         
             title: const Text('Predict'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => (),
           ),
           ListTile(
-            leading: const Icon(Icons.model_training),
+       
             title: const Text('Train'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => (),
@@ -153,9 +153,9 @@ class _ManageModelState extends State<ManageModel> {
       actions: [
         IconButton(
           icon: const Icon(Icons.delete_sharp),
-          onPressed: () => _handleDeleteModel(appProvider),
-        ),
-      ],
+          onPressed: () => _handleDeleteModel(appProvider)
+        )
+      ]
     );
   }
 

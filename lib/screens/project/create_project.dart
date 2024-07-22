@@ -33,13 +33,6 @@ class _CreateProjectState extends State<CreateProject> {
 
   void _handleCreateProject(AppProvider appProvider) async {
     try {
-      bool? isCreateData = await Dialogs.showConfirmDialog(context,
-          "Are you sure you want to create the project: ${_nameController.text}?");
-
-      if (isCreateData == false) {
-        return;
-      }
-
       Project project = Project(
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
@@ -57,8 +50,7 @@ class _CreateProjectState extends State<CreateProject> {
       bool projectExist = await appProvider.checkForExisitingProject(project);
       if (projectExist) {
         appProvider.setIsLoading(false);
-        _showErrorDialog('Create Project',
-            'Please choose another name, project already exist.');
+        _showSnackBar("Project Already Exists");
         return;
       } else {
         await APIServices().createProject(project, user);
@@ -69,7 +61,7 @@ class _CreateProjectState extends State<CreateProject> {
       }
     } catch (error) {
       appProvider.setIsLoading(false);
-      _showErrorDialog('Error', 'Error: ${error.toString()}');
+      _showSnackBar(error.toString());
     }
   }
 

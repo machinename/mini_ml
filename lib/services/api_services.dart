@@ -144,46 +144,9 @@ class APIServices {
         throw (response.body.toString());
       }
     } catch (error) {
-      throw (error.toString());
+      print(error.toString());
+      throw ('Error Creating Project, If The Error Persists Contact Support');
     }
   }
 
-  Future<bool?> subscriberOperation(User user, String operation) async {
-    try {
-      final serverPublicKey = await _fetchServerPublicKey(user);
-
-      final encryptedIV = _rsaEncrypt(_iv.base64, serverPublicKey);
-      final encryptedKey = _rsaEncrypt(_key.base64, serverPublicKey);
-      final encryptedUserId = _rsaEncrypt(user.uid, serverPublicKey);
-      final encryptedOperation = _rsaEncrypt(operation, serverPublicKey);
-      final idToken = await user.getIdToken();
-      final url = Uri.parse('$_baseUrl/subscriber_operation');
-
-      final Map<String, dynamic> body = {
-        'iv': encryptedIV,
-        'key': encryptedKey,
-        'user_id': encryptedUserId,
-        'operation': encryptedOperation,
-      };
-
-      final response = await http
-          .post(
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $idToken',
-            },
-            body: jsonEncode(body),
-          )
-          .timeout(const Duration(seconds: 20));
-
-      if (response.statusCode != 201) {
-        throw (response.body.toString());
-      }
-
-      return true;
-    } catch (error) {
-      throw (error.toString());
-    }
-  }
 }

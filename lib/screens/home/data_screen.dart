@@ -32,6 +32,7 @@ class DataScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final data = appProvider.projectProvider.data[index];
                 return ListTile(
+                  leading: const Icon(Icons.data_array_sharp),
                     title: Text(data.name),
                     subtitle: Text('Created at - ${data.createdAt}'),
                     onTap: () {
@@ -41,20 +42,6 @@ class DataScreen extends StatelessWidget {
                     trailing: const Icon(Icons.chevron_right));
               })),
     ]);
-
-    // ListView.builder(
-    //     itemCount: appProvider.projectProvider.data.length,
-    //     itemBuilder: (context, index) {
-    //       final data = appProvider.projectProvider.data[index];
-    //       return ListTile(
-    //           title: Text(data.name),
-    //           subtitle: Text('Created at - ${data.createdAt}'),
-    //           onTap: () {
-    //             appProvider.projectProvider.currentData = data;
-    //             _pushToManageData(context, appProvider);
-    //           },
-    //           trailing: const Icon(Icons.chevron_right));
-    //     });
   }
 
   @override

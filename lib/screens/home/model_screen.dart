@@ -36,6 +36,7 @@ class ModelScreenState extends State<ModelScreen> {
                 itemBuilder: (context, index) {
                   final model = appProvider.projectProvider.models[index];
                   return ListTile(
+                    leading: const Icon(Icons.model_training_sharp),
                       style: ListTileStyle.list,
                       title: Text(model.name),
                       subtitle: Text('Created at - ${model.createdAt}'),

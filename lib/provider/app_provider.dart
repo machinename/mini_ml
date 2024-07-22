@@ -181,6 +181,13 @@ class AppProvider extends ChangeNotifier {
       } else {
         throw ('No user currently logged in');
       }
+
+      final DocumentReference docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(project.id);
+      docRef.delete();
     } catch (error) {
       print('Error deleting project from database: $error');
       throw FirebaseException(plugin: error.toString());

@@ -47,7 +47,7 @@ class _CreateModelState extends State<CreateModel> {
       bool resourceExist =
           await appProvider.checkForExisitingResource(projectId, model);
       if (resourceExist) {
-        _showSnackBar("Model: `${_nameController.text}`, Already Exists");
+        _showSnackBar("Model with the same name already exists!");
         return;
       } else {
         print(_dataId);
