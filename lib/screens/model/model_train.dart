@@ -91,6 +91,7 @@ class _TrainModelState extends State<TrainModel> {
                 width: MediaQuery.of(context).size.width * .94,
                 menuHeight: MediaQuery.of(context).size.height * .5,
                 requestFocusOnTap: true,
+                enableFilter: true,
                 leadingIcon: const Icon(Icons.search),
                 onSelected: (selectedValue) {
                   if (selectedValue != null) {

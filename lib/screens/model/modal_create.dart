@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/model/train_model.dart';
+import 'package:mini_ml/screens/model/model_train.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class CreateModel extends StatefulWidget {
-  const CreateModel({super.key});
+class ModalCreate extends StatefulWidget {
+  const ModalCreate({super.key});
 
   @override
-  State<CreateModel> createState() => _CreateModelState();
+  State<ModalCreate> createState() => _ModalCreateState();
 }
 
-class _CreateModelState extends State<CreateModel> {
+class _ModalCreateState extends State<ModalCreate> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -52,14 +52,14 @@ class _CreateModelState extends State<CreateModel> {
       } else {
         print(_dataId);
 
-        _pushToCreateModelSettings(dataVariables, model);
+        _pushToModalCreateSettings(dataVariables, model);
       }
     } catch (error) {
       _showSnackBar(error.toString());
     }
   }
 
-  void _pushToCreateModelSettings(
+  void _pushToModalCreateSettings(
     Map<String, dynamic> dataVariables,
     Model model,
   ) {

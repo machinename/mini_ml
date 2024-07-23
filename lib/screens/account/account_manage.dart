@@ -1,21 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/account/data_and_privacy.dart';
-import 'package:mini_ml/screens/account/email.dart';
-import 'package:mini_ml/screens/account/legal.dart';
-import 'package:mini_ml/screens/account/password.dart';
+import 'package:mini_ml/screens/account/account_data_and_privacy.dart';
+import 'package:mini_ml/screens/account/account_email.dart';
+import 'package:mini_ml/screens/account/account_legal.dart';
+import 'package:mini_ml/screens/account/account_security.dart';
+import 'package:mini_ml/screens/login/reAuth.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ManageAccount extends StatefulWidget {
-  const ManageAccount({super.key});
+class AccountManage extends StatefulWidget {
+  const AccountManage({super.key});
 
   @override
-  State<ManageAccount> createState() => _ManageAccountState();
+  State<AccountManage> createState() => _AccountManageState();
 }
 
-class _ManageAccountState extends State<ManageAccount> {
+class _AccountManageState extends State<AccountManage> {
   void _back() {
     Navigator.pop(context);
   }
@@ -59,11 +61,11 @@ class _ManageAccountState extends State<ManageAccount> {
     }
   }
 
-  void _pushToUpdateAccountEmail() {
+  void _pushToReAuth(String route) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const Email(),
+        builder: (context) => ReAuth(route: route),
       ),
     );
   }
@@ -72,7 +74,7 @@ class _ManageAccountState extends State<ManageAccount> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const DataAndPrivacy(),
+        builder: (context) => const AccountDataAndPrivacy(),
       ),
     );
   }
@@ -81,7 +83,7 @@ class _ManageAccountState extends State<ManageAccount> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const Security(),
+        builder: (context) => const AccountSecurity(),
       ),
     );
   }
@@ -99,36 +101,19 @@ class _ManageAccountState extends State<ManageAccount> {
     Dialogs.showSnackBar(context, string);
   }
 
-  Future<bool> _reAuth(AppProvider appProvider) async {
-    try {
-      String? password = await Dialogs.showPasswordDialog(context);
-      if (password != null) {
-        await appProvider.reauthenticateWithCredential(password);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      _showSnackBar('Error Occured');
-      return false;
-    }
-  }
-
   _buildBody(AppProvider appProvider) {
     return ListView(
       physics: const ClampingScrollPhysics(),
       children: [
         ListTile(
-          // leading: const Icon(Icons.email_sharp),
           title: const Text("Email"),
           subtitle: Text(appProvider.auth.currentUser?.email ?? "N/A"),
           onTap: () {
-            _pushToUpdateAccountEmail();
+            _pushToReAuth('email');
           },
           trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
-          // leading: const Icon(Icons.lock_sharp),
           title: const Text("Security"),
           onTap: () {
             _pushToSecurity();
@@ -136,35 +121,17 @@ class _ManageAccountState extends State<ManageAccount> {
           trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
-          // leading: const Icon(Icons.security_sharp),
           title: const Text("Data & Privacy"),
           onTap: () {
             _pushToDataAndPrivacy();
           },
           trailing: const Icon(Icons.chevron_right_sharp),
         ),
-
-        // ListTile(
-        //   leading: const Icon(Icons.subscriptions_sharp),
-        //   title: const Text("Subscription"),
-        //   subtitle: Text(appProvider.subscriberProvider.subscriberTier
-        //       .toString()
-        //       .split('.')
-        //       .last
-        //       .replaceFirstMapped(
-        //           RegExp(r'^[a-z]'), (match) => match.group(0)!.toUpperCase())),
-        //   onTap: () => {
-        //     _pushToSubscription(),
-        //   },
-        //   trailing: const Icon(Icons.chevron_right_sharp),
-        // ),
         const ListTile(
-          // leading: const Icon(Icons.storage_sharp),
           title: Text("Storage"),
-          subtitle: Text('MB of 100 MB used'),
+          subtitle: Text('0 MB of 100 MB used'),
         ),
         ListTile(
-          // leading: const Icon(Icons.notifications_sharp),
           title: const Text("Support"),
           subtitle: const Text("support@machinename.dev"),
           onTap: () {
@@ -173,26 +140,12 @@ class _ManageAccountState extends State<ManageAccount> {
           trailing: const Icon(Icons.chevron_right_sharp),
         ),
         ListTile(
-          // leading: const Icon(Icons.settings_sharp),
           title: const Text("Legal"),
           onTap: () {
             _pushToLegal();
           },
           trailing: const Icon(Icons.chevron_right_sharp),
         ),
-        // if(appProvider.auth.currentUser?.emailVerified == false)
-        //   ListTile(
-        //   textColor: Colors.red,
-        //   iconColor: Colors.red,
-        //   title: const Text("Account Not Verified"),
-        //   onTap: () {
-        //     _sendEmailVerification();
-        //     _showSnackBar('Sending Email Verification, Please Verify & Sign In Again');
-        //   },
-        //   trailing: const Icon(Icons.chevron_right_sharp),
-        // ),
-
-   
       ],
     );
   }
@@ -211,7 +164,6 @@ class _ManageAccountState extends State<ManageAccount> {
         Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 4,
-              // vertical: Constants.getPaddingVertical(context),
             ),
             child: TextButton(
               onPressed: () {

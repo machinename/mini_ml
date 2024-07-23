@@ -48,60 +48,6 @@ class Dialogs {
     );
   }
 
-  static Future<String?> showPasswordDialog(BuildContext context) {
-    final TextEditingController passwordController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text('Enter Password'),
-              content: Form(
-                key: formKey,
-                child: TextFormField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(hintText: 'Password'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password cannot be empty';
-                    }
-                    return null;
-                  },
-                  onChanged: (_) {
-                    setState(
-                      () {},
-                    );
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: passwordController.text.isNotEmpty
-                      ? () {
-                          if (formKey.currentState!.validate()) {
-                            Navigator.of(context).pop(passwordController.text);
-                          }
-                        }
-                      : null,
-                  child: const Text('OK'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(null);
-                  },
-                  child: const Text('CANCEL'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
   static Future<String?> showUrlDialog(BuildContext context) {
     final TextEditingController urlController = TextEditingController();
@@ -204,11 +150,11 @@ class Dialogs {
   }
 
   static void showSnackBar(BuildContext context, String message,
-      {int displayTime = 4}) {
+      {int seconds = 4}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Center(child: Text(message)),
-        duration: Duration(seconds: displayTime),
+        duration: Duration(seconds: seconds),
       ),
     );
   }

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/project/create_project.dart';
+import 'package:mini_ml/screens/project/project_create.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:provider/provider.dart';
 
-class SearchProject extends StatefulWidget {
-  const SearchProject({super.key});
+class ProjectSearch extends StatefulWidget {
+  const ProjectSearch({super.key});
 
   @override
-  State<SearchProject> createState() => _SearchProjectState();
+  State<ProjectSearch> createState() => _ProjectSearchState();
 }
 
-class _SearchProjectState extends State<SearchProject> {
+class _ProjectSearchState extends State<ProjectSearch> {
   final TextEditingController _controller = TextEditingController();
   String _searchText = "";
   String selected = "";
@@ -26,7 +26,7 @@ class _SearchProjectState extends State<SearchProject> {
       context,
       MaterialPageRoute(
         maintainState: false,
-        builder: (context) => const CreateProject(),
+        builder: (context) => const ProjectCreate(),
       ),
     );
   }

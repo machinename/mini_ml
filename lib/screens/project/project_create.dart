@@ -8,16 +8,16 @@ import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class CreateProject extends StatefulWidget {
-  const CreateProject({
+class ProjectCreate extends StatefulWidget {
+  const ProjectCreate({
     super.key,
   });
 
   @override
-  State<CreateProject> createState() => _CreateProjectState();
+  State<ProjectCreate> createState() => _ProjectCreateState();
 }
 
-class _CreateProjectState extends State<CreateProject> {
+class _ProjectCreateState extends State<ProjectCreate> {
   bool _isCreatePressed = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -31,7 +31,7 @@ class _CreateProjectState extends State<CreateProject> {
     Navigator.popUntil(context, (route) => route.isFirst);
   }
 
-  void _handleCreateProject(AppProvider appProvider) async {
+  void _handleProjectCreate(AppProvider appProvider) async {
     try {
       Project project = Project(
         name: _nameController.text.trim(),
@@ -46,21 +46,17 @@ class _CreateProjectState extends State<CreateProject> {
         return;
       }
 
-      appProvider.setIsLoading(true);
       bool projectExist = await appProvider.checkForExisitingProject(project);
       if (projectExist) {
-        appProvider.setIsLoading(false);
         _showSnackBar("Project Already Exists");
         return;
       } else {
         await APIServices().createProject(project, user);
         await appProvider.fetchProjects(projectName: project.name);
-        appProvider.setIsLoading(false);
         _showSnackBar("Project Created Successfully");
         _exit();
       }
     } catch (error) {
-      appProvider.setIsLoading(false);
       _showSnackBar(error.toString());
     }
   }
@@ -151,7 +147,7 @@ class _CreateProjectState extends State<CreateProject> {
                           });
                           if (_formKey.currentState != null &&
                               _formKey.currentState!.validate()) {
-                            _handleCreateProject(appProvider);
+                            _handleProjectCreate(appProvider);
                           }
                         }
                       : null,

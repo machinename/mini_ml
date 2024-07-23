@@ -283,7 +283,7 @@ class AppProvider extends ChangeNotifier {
 
           print('Successfully deleted data from database');
         } else {
-          var modelDocRef = docRef.collection('data').doc(resource.id);
+          var modelDocRef = docRef.collection('models').doc(resource.id);
           await modelDocRef.delete();
 
           var modelStorageRef = storageRef.child('models/${resource.id}');
@@ -293,7 +293,31 @@ class AppProvider extends ChangeNotifier {
         }
       }
     } catch (error) {
-      print('Error creating project on database: $error');
+      print('Error deleting resource from database: $error');
+      throw FirebaseException(plugin: error.toString());
+    }
+  }
+
+  Future<void> deleteDataFromAssociatedModels(String projectId, Data data) async {
+    try {
+      if (_auth.currentUser != null) {
+        final DocumentReference docRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(_auth.currentUser?.uid)
+            .collection('projects')
+            .doc(projectId);
+
+        for (Model model in _projectProvider.models) {
+          if (model.dataId == data.id) {
+            var newModel = model;
+            newModel.dataId = '';
+            docRef.collection('models').doc(model.id).update(newModel.toJson());
+            print('Successfully deleted data from associated models');
+          }
+        }
+      }
+    } catch (error) {
+      print('Error deleting resource from database: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
@@ -368,17 +392,54 @@ class AppProvider extends ChangeNotifier {
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } catch (error) {
-      throw (error.toString());
+      throw FirebaseAuthException(code: error.toString());
     } finally {
       notifyListeners();
     }
   }
 
+  // on FirebaseAuthException catch (e) {
+  //     if (e.code == 'weak-password') {
+  //       message = 'The password provided is too weak.';
+  //     } else if (e.code == 'email-already-in-use') {
+  //       message = 'An account already exists with that email.';
+  //     }
+  //     Fluttertoast.showToast(
+  //       msg: message,
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.SNACKBAR,
+  //       backgroundColor: Colors.black54,
+  //       textColor: Colors.white,
+  //       fontSize: 14.0,
+  //     );
+  //   } catch (e) {
+  //     Fluttertoast.showToast(
+  //       msg: "Failed: $e",
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.SNACKBAR,
+  //       backgroundColor: Colors.black54,
+  //       textColor: Colors.white,
+  //       fontSize: 14.0,
+  //     );
+  //   }
+  // }
+
   Future<void> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw 'No user found for that email.';
+        case 'wrong-password':
+          throw 'Wrong password provided for that user.';
+        case 'too-many-requests':
+          throw 'Too many requests! Try again later. If issue persists, contact support.';
+        default:
+          throw 'An error occurred: ${e.message} - code: ${e.code}';
+      }
     } catch (error) {
-      throw FirebaseAuthException(code: error.toString());
+      throw 'An unexpected error occurred: ${error.toString()}';
     } finally {
       notifyListeners();
     }
@@ -387,18 +448,59 @@ class AppProvider extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       await _auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      throw 'An error occurred: ${e.message} - code: ${e.code}';
     } catch (error) {
-      throw FirebaseAuthException(code: error.toString());
+      throw 'An unexpected error occurred: ${error.toString()}';
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> resetPassword(String email) async {
+  Future<void> reauthenticateWithCredential(String password) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      if (_auth.currentUser == null) {
+        throw ('User not found');
+      }
+      if (_auth.currentUser!.email == null) {
+        throw ('Email not found');
+      }
+      String email = _auth.currentUser!.email!;
+      AuthCredential credential =
+          EmailAuthProvider.credential(email: email, password: password);
+      await _auth.currentUser?.reauthenticateWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-credential':
+          throw 'The provided credentials are invalid.';
+        default:
+          throw 'An error occurred: ${e.message} - code: ${e.code}';
+      }
     } catch (error) {
-      throw FirebaseAuthException;
+      throw 'An unexpected error occurred: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> resetPassword() async {
+    try {
+      if (_auth.currentUser == null) {
+        throw ('User not found');
+      }
+
+      if (_auth.currentUser!.email == null) {
+        throw ('Email not found');
+      }
+
+      String email = _auth.currentUser!.email!;
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw 'An error occurred: ${e.message}';
+    } catch (error) {
+      throw 'An unexpected error occurred: ${error.toString()}';
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -406,9 +508,12 @@ class AppProvider extends ChangeNotifier {
     try {
       if (_auth.currentUser != null) {
         print('Deleting Account');
+        await _auth.currentUser!.delete();
       }
+    } on FirebaseAuthException catch (e) {
+      throw 'An error occurred: ${e.message} - code: ${e.code}';
     } catch (error) {
-      throw FirebaseAuthException(code: error.toString());
+      throw 'An unexpected error occurred: ${error.toString()}';
     } finally {
       notifyListeners();
     }
@@ -417,29 +522,14 @@ class AppProvider extends ChangeNotifier {
   Future<void> sendEmailVerification() async {
     try {
       if (_auth.currentUser != null) {
-        _auth.currentUser?.sendEmailVerification();
+        await _auth.currentUser!.sendEmailVerification();
       }
+    } on FirebaseAuthException catch (e) {
+      throw 'An error occurred: ${e.message} - code: ${e.code}';
     } catch (error) {
-      throw FirebaseAuthException(code: error.toString());
-    }
-  }
-
-  Future<void> reauthenticateWithCredential(String password) async {
-    try {
-      if (_auth.currentUser == null) {
-        throw ('User Not Found.');
-      }
-      String? email = _auth.currentUser?.email;
-      if (email == null) {
-        throw ('User Email Not Found.');
-      }
-
-      AuthCredential credential =
-          EmailAuthProvider.credential(email: email, password: password);
-
-      await _auth.currentUser?.reauthenticateWithCredential(credential);
-    } catch (error) {
-      throw FirebaseAuthException(code: error.toString());
+      throw 'An unexpected error occurred: ${error.toString()}';
+    } finally {
+      notifyListeners();
     }
   }
 }

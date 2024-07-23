@@ -11,14 +11,14 @@ import 'package:mini_ml/widgets/dialogs.dart';
 
 import 'package:provider/provider.dart';
 
-class CreateData extends StatefulWidget {
-  const CreateData({super.key});
+class DataCreate extends StatefulWidget {
+  const DataCreate({super.key});
 
   @override
-  State<CreateData> createState() => _CreateDataState();
+  State<DataCreate> createState() => _DataCreateState();
 }
 
-class _CreateDataState extends State<CreateData> {
+class _DataCreateState extends State<DataCreate> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -33,7 +33,7 @@ class _CreateDataState extends State<CreateData> {
     Navigator.pop(context);
   }
 
-  void _createData(AppProvider appProvider) async {
+  void _DataCreate(AppProvider appProvider) async {
     try {
       Data data = Data(
         name: _nameController.text.trim(),
@@ -48,11 +48,10 @@ class _CreateDataState extends State<CreateData> {
         return;
       }
 
-      appProvider.setIsLoading(true);
       bool resourceExist =
           await appProvider.checkForExisitingResource(projectId, data);
       if (resourceExist) {
-        appProvider.setIsLoading(false);
+    
        _showSnackBar("Data with the same name already exists!");
         return;
       }
@@ -60,12 +59,11 @@ class _CreateDataState extends State<CreateData> {
       await APIServices()
           .createResource(projectId, data, user, dataPath: _dataSetPath);
       await appProvider.fetchResources(projectId);
-      appProvider.setIsLoading(false);
+      
      
       _back();
       _showSnackBar("Data Created Successfully");
     } catch (error) {
-      appProvider.setIsLoading(false);
       _showSnackBar(error.toString());
       throw Exception(error.toString());
     }
@@ -260,7 +258,7 @@ class _CreateDataState extends State<CreateData> {
                     );
                     if (_formKey.currentState != null &&
                         _formKey.currentState!.validate()) {
-                      _createData(appProvider);
+                      _DataCreate(appProvider);
                     }
                   }
                 : null,

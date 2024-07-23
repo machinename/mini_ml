@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/model/manage_model.dart';
+import 'package:mini_ml/screens/model/modal_manage.dart';
 import 'package:provider/provider.dart';
 
 class ModelScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class ModelScreenState extends State<ModelScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            maintainState: false, builder: (context) => const ManageModel()));
+            maintainState: false, builder: (context) => const ModelManage()));
   }
 
   _buildBody(AppProvider appProvider) {

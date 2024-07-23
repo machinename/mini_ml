@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/data.dart';
+import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:mini_ml/utils/validators.dart';
@@ -51,20 +52,20 @@ class _ModelNameState extends State<ModelName> {
 
   void _handleUpdateModelName(AppProvider appProvider) async {
     try {
-      Data? data = appProvider.projectProvider.currentData;
+      Model? model = appProvider.projectProvider.currentModel;
 
-      if (data == null) {
+      if (model == null) {
         _showSnackBar("Data not found");
         return;
       }
 
-      data.name = _nameController.text.trim();
+      model.name = _nameController.text.trim();
       String projectId = appProvider.projectProvider.id;
-      await appProvider.updateResource(projectId, data);
+      await appProvider.updateResource(projectId, model);
       await appProvider.fetchResources(projectId);
       _back();
     } catch (error) {
-      _showSnackBar("Error updating nodel name: ${error.toString()}");
+      _showSnackBar("Error updating model name: ${error.toString()}");
     }
   }
 

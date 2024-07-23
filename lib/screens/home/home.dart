@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/account/manage_account.dart';
-import 'package:mini_ml/screens/data/create_data.dart';
+import 'package:mini_ml/screens/account/account_manage.dart';
+import 'package:mini_ml/screens/data/data_create.dart';
 import 'package:mini_ml/screens/home/dashboard.dart';
-import 'package:mini_ml/screens/home/data_screen.dart';
-import 'package:mini_ml/screens/home/model_screen.dart';
-import 'package:mini_ml/screens/model/create_model.dart';
-import 'package:mini_ml/screens/project/create_project.dart';
-import 'package:mini_ml/screens/project/manage_project.dart';
-import 'package:mini_ml/screens/project/search_projects.dart';
+import 'package:mini_ml/screens/data/data_screen.dart';
+import 'package:mini_ml/screens/model/model_screen.dart';
+import 'package:mini_ml/screens/model/modal_create.dart';
+import 'package:mini_ml/screens/project/project_create.dart';
+import 'package:mini_ml/screens/project/project_manage.dart';
+import 'package:mini_ml/screens/project/project_search.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
@@ -28,36 +28,36 @@ class _HomeState extends State<Home> {
     DataScreen(),
   ];
 
-  void _pushToCreateData() {
+  void _pushToDataCreate() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const CreateData()));
+        context, MaterialPageRoute(builder: (context) => const DataCreate()));
   }
 
   void _pushToCreateProject() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const CreateProject()));
+        MaterialPageRoute(builder: (context) => const ProjectCreate()));
   }
 
   void _pushToCreateModel() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const CreateModel()));
+        context, MaterialPageRoute(builder: (context) => const ModalCreate()));
   }
 
   void _pushToManageProject() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ManageProject()));
+        MaterialPageRoute(builder: (context) => const ProjectManage()));
   }
 
   void _pushToAccountScreen() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ManageAccount()));
+        MaterialPageRoute(builder: (context) => const AccountManage()));
   }
 
   void _pushToSearchProjects() {
     Navigator.push(
         context,
         MaterialPageRoute(
-            maintainState: false, builder: (context) => const SearchProject()));
+            maintainState: false, builder: (context) => const ProjectSearch()));
   }
 
   _buildBody() {
@@ -157,7 +157,7 @@ class _HomeState extends State<Home> {
     } else if (_currentTabIndex == 1) {
       _pushToCreateModel();
     } else {
-      _pushToCreateData();
+      _pushToDataCreate();
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/data/manage_data.dart';
+import 'package:mini_ml/screens/data/data_manage.dart';
 import 'package:provider/provider.dart';
 
 class DataScreen extends StatelessWidget {
@@ -9,13 +9,11 @@ class DataScreen extends StatelessWidget {
   static final GlobalKey<RefreshIndicatorState> _dataRefreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
-  void _pushToManageData(BuildContext context, AppProvider appProvider) {
+  void _pushToDataManage(BuildContext context, AppProvider appProvider) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            maintainState: false,
-            allowSnapshotting: false,
-            builder: (context) => const ManageData()));
+            builder: (context) => const DataManage()));
   }
 
   Widget _buildBody(BuildContext context, AppProvider appProvider) {
@@ -23,8 +21,7 @@ class DataScreen extends StatelessWidget {
       const ListTile(
         title: Text('Data',
             style: TextStyle(
-                // fontWeight: FontWeight.bold,
-                fontSize: 30)),
+                fontSize: 30))
       ),
       Expanded(
           child: ListView.builder(
@@ -37,7 +34,7 @@ class DataScreen extends StatelessWidget {
                     subtitle: Text('Created at - ${data.createdAt}'),
                     onTap: () {
                       appProvider.projectProvider.currentData = data;
-                      _pushToManageData(context, appProvider);
+                      _pushToDataManage(context, appProvider);
                     },
                     trailing: const Icon(Icons.chevron_right));
               })),
