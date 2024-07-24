@@ -5,6 +5,7 @@ import 'package:mini_ml/screens/login/forgot_password.dart';
 import 'package:mini_ml/screens/login/verify.dart';
 // import 'package:mini_ml/screens/login/verify.dart';
 import 'package:mini_ml/utils/constants.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +30,6 @@ class _SignOnState extends State<SignOn> {
   final TextEditingController _passwordConfirmController =
       TextEditingController();
 
-  // bool _acceptedTermsAndConditions = false;
   bool _isPasswordVisible = false;
   bool _isSignIn = true;
   bool _isSignInUpPressed = false;
@@ -40,26 +40,50 @@ class _SignOnState extends State<SignOn> {
     _isSignIn = widget.mode == 'sign_in';
   }
 
-  _back() {
+  void _back() {
     Navigator.pop(context);
   }
 
   void _pushToForgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgotPassword(),
-      ),
-    );
+    Helpers.pushTo(context, const ForgotPassword());
   }
 
-  _pushToVerfiy() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const Verify(),
-      ),
-    );
+  void _pushToVerfiy() {
+    Helpers.pushTo(context, const Verify());
+  }
+
+  void _showSnackBar(String string) {
+    Dialogs.showSnackBar(context, string);
+  }
+
+  void _signOn(AppProvider appProvider) async {
+    try {
+      if (_isSignIn) {
+        appProvider.setIsLoading(true);
+        await appProvider.signIn(
+            _emailController.text, _passwordController.text);
+        appProvider.setIsLoading(false);
+        _back();
+      } else {
+        appProvider.setIsLoading(true);
+        await appProvider.signUp(
+            _emailController.text, _passwordController.text);
+        await appProvider.sendEmailVerification();
+        appProvider.setIsLoading(false);
+        _pushToVerfiy();
+      }
+    } catch (error) {
+      appProvider.setIsLoading(false);
+      _showSnackBar(
+        error.toString(),
+      );
+    }
+  }
+
+  void _switchModes() {
+    _emailController.text = '';
+    _passwordController.text = '';
+    _isSignIn = !_isSignIn;
   }
 
   Future<void> _pushToTermsOfService() async {
@@ -98,49 +122,18 @@ class _SignOnState extends State<SignOn> {
     }
   }
 
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
-  }
-
-
-    void _signOn(AppProvider appProvider) async {
-    try {
-   
-      if (_isSignIn) {
-        await appProvider.signIn(
-            _emailController.text, _passwordController.text);
-            _back();
-        } 
-       else {
-        await appProvider.signUp(
-            _emailController.text, _passwordController.text);
-            await appProvider.sendEmailVerification();
-          
-            _pushToVerfiy();
-      }
-    } catch (error) {
-      print(error.toString());
-    
-      _showSnackBar(
-        error.toString(),
-      );
-    }
-  }
-
-  void _switchModes() {
-    _emailController.text = '';
-    _passwordController.text = '';
-    _isSignIn = !_isSignIn;
-  }
-
   _buildBody(AppProvider appProvider) {
-    return Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: Constants.getPaddingHorizontal(context),
-            vertical: Constants.getPaddingVertical(context)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: Constants.getPaddingHorizontal(context),
+              vertical: Constants.getPaddingVertical(context)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Form(
                 key: _formKey,
                 child: Column(
@@ -185,7 +178,6 @@ class _SignOnState extends State<SignOn> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             border: const OutlineInputBorder(),
-                            // floatingLabelBehavior: FloatingLabelBehavior.always,
                             suffixIcon: IconButton(
                               icon: Icon(_isPasswordVisible
                                   ? Icons.visibility_off
@@ -236,43 +228,37 @@ class _SignOnState extends State<SignOn> {
                 : Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: Constants.getPaddingHorizontal(context),
-                      // vertical: Constants.getPaddingVertical(context)
                     ),
                     child: RichText(
-                      textAlign: TextAlign.start,
-                      text: TextSpan(
-                        text:
-                            'By tapping Create Account, you acknowledge that you have read the',
-                        style: const TextStyle(
-                            color: Colors.black), // Non-underlined text style
-                        children: [
-                          TextSpan(
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                _pushToPrivacyPolicy();
-                              },
-                            text: ' Privacy Policy',
-                            style: const TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const TextSpan(text: ' and agree to the '),
-                          TextSpan(
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                _pushToTermsOfService();
-                              },
-                            text: 'Terms of Service',
-                            style: const TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const TextSpan(text: '.'),
-                        ],
-                      ),
-                    )),
+                        textAlign: TextAlign.start,
+                        text: TextSpan(
+                            text:
+                                'By tapping Create Account, you acknowledge that you have read the',
+                            style: const TextStyle(color: Colors.black),
+                            children: [
+                              TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      _pushToPrivacyPolicy();
+                                    },
+                                  text: ' Privacy Policy',
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue,
+                                  )),
+                              const TextSpan(text: ' and agree to the '),
+                              TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      _pushToTermsOfService();
+                                    },
+                                  text: 'Terms of Service',
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue,
+                                  )),
+                              const TextSpan(text: '.')
+                            ]))),
             SizedBox(height: Constants.getPaddingVertical(context) - 2),
             _isSignIn
                 ? ElevatedButton(
@@ -296,7 +282,6 @@ class _SignOnState extends State<SignOn> {
                     onPressed: _emailController.text.isNotEmpty &&
                             _passwordController.text.isNotEmpty &&
                             _passwordConfirmController.text.isNotEmpty
-                        // _acceptedTermsAndConditions
                         ? () {
                             setState(
                               () {
@@ -309,54 +294,39 @@ class _SignOnState extends State<SignOn> {
                             }
                           }
                         : null,
-                    child: const Text('Create Account'),
-                  ),
-          ],
-        ));
+                    child: const Text('Create Account'))
+          ]))
+    ]);
   }
 
   _buildAppBar() {
     return AppBar(
-      title: _isSignIn ? const Text('Sign In') : const Text('Sign Up'),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_sharp),
-        onPressed: () {
-          _back();
-        },
-      ),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-            // vertical: Constants.getPaddingVertical(context),
-          ),
-          child: TextButton(
+        title: _isSignIn ? const Text('Sign In') : const Text('Sign Up'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back_sharp),
             onPressed: () {
-              setState(
-                () {
-                  _switchModes();
-                },
-              );
-            },
-            child: Text(_isSignIn ? 'Sign Up' : 'Sign In'),
-          ),
-        ),
-      ],
-    );
+              _back();
+            }),
+        centerTitle: false,
+        actions: [
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _switchModes();
+                    });
+                  },
+                  child: Text(_isSignIn ? 'Sign Up' : 'Sign In')))
+        ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, appProvider, _) {
-        return Scaffold(
+    return Consumer<AppProvider>(builder: (context, appProvider, _) {
+      return Scaffold(
           appBar: _buildAppBar(),
-          body: appProvider.isLoading
-              ? const Center(child: CircularProgressIndicator.adaptive())
-              : _buildBody(appProvider),
-        );
-      },
-    );
+          body: _buildBody(appProvider));
+    });
   }
 }

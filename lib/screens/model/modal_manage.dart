@@ -4,7 +4,6 @@ import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/model/model_delete.dart';
 import 'package:mini_ml/screens/model/model_description.dart';
 import 'package:mini_ml/screens/model/model_name.dart';
-import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
 class ModelManage extends StatefulWidget {
@@ -70,7 +69,7 @@ class _ModelManageState extends State<ModelManage> {
               trailing: const Icon(Icons.chevron_right),
               subtitle: model.description.isNotEmpty
                   ? Text(model.description)
-                  : const Text('N/A'),
+                  : null,
               onTap: () => _pushToModelDescription()),
           ListTile(
             title: const Text('Model Type'),

@@ -51,12 +51,15 @@ class _ProjectCreateState extends State<ProjectCreate> {
         _showSnackBar("Project Already Exists");
         return;
       } else {
+        appProvider.setIsLoading(true);
         await APIServices().createProject(project, user);
         await appProvider.fetchProjects(projectName: project.name);
+        appProvider.setIsLoading(false);
         _showSnackBar("Project Created Successfully");
         _exit();
       }
     } catch (error) {
+      appProvider.setIsLoading(false);
       _showSnackBar(error.toString());
     }
   }
@@ -70,14 +73,16 @@ class _ProjectCreateState extends State<ProjectCreate> {
   }
 
   _buildBody(AppProvider appProvider) {
-    return appProvider.isLoading
-        ? const Center(child: CircularProgressIndicator.adaptive())
-        : ListView(
-            physics: const ClampingScrollPhysics(),
-            padding: EdgeInsets.symmetric(
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ), Padding(
+          padding: EdgeInsets.symmetric(
               horizontal: Constants.getPaddingHorizontal(context),
-              vertical: Constants.getPaddingVertical(context),
-            ),
+              vertical: Constants.getPaddingVertical(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
                 Form(
                     key: _formKey,
@@ -85,6 +90,7 @@ class _ProjectCreateState extends State<ProjectCreate> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TextFormField(
+                              enabled: appProvider.isLoading == false,
                               maxLength:
                                   _nameController.text.length > 35 ? 40 : null,
                               controller: _nameController,
@@ -104,6 +110,7 @@ class _ProjectCreateState extends State<ProjectCreate> {
                           SizedBox(
                               height: Constants.getPaddingVertical(context)),
                           TextFormField(
+                            enabled: appProvider.isLoading == false,
                               maxLength: _descriptionController.text.length > 75
                                   ? 100
                                   : null,
@@ -124,7 +131,7 @@ class _ProjectCreateState extends State<ProjectCreate> {
                                 setState(() {});
                               })
                         ]))
-              ]);
+              ])) ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
@@ -140,8 +147,10 @@ class _ProjectCreateState extends State<ProjectCreate> {
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: TextButton(
-                  onPressed: _nameController.text.isNotEmpty
-                      ? () {
+                
+                  onPressed: _nameController.text.isNotEmpty &&
+                          !appProvider.isLoading
+                      ? () { 
                           setState(() {
                             _isCreatePressed = true;
                           });

@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/model.dart';
@@ -45,7 +44,6 @@ class _TrainModelState extends State<TrainModel> {
         return;
       }
 
-      
       appProvider.setIsLoading(true);
       if (widget.mode == 'create') {
         widget.model.label = _label;
@@ -56,10 +54,11 @@ class _TrainModelState extends State<TrainModel> {
             .createResource(projectId, widget.model, currentUser);
       } else {
         // await APIServices().trainModel(projectId, model, currentUser);
-      } 
+      }
+
+      await appProvider.fetchResources(projectId);
       appProvider.setIsLoading(false);
       _showSnackBar("Model Created Successfully");
-      await appProvider.fetchResources(projectId);
       _exit();
     } catch (error) {
       appProvider.setIsLoading(false);
@@ -113,30 +112,32 @@ class _TrainModelState extends State<TrainModel> {
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _back();
-        }
-      ),
-      title: const Text("Train Model"),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
-            onPressed: _label.isNotEmpty
-                ? () {
-                    _handleModel(appProvider);
-                  }
-                : null,
-            child: const Text('Train')
-          )
-        )
-      ]
-    );
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed:  !appProvider.isLoading ? () {
+              _back();
+            } : null
+            ),
+        title: widget.mode == 'create'
+            ? const Text('Create Model')
+            : const Text('Train Model'),
+        centerTitle: false,
+        actions: [
+          Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4,
+              ),
+              child: TextButton(
+                onPressed: _label.isNotEmpty
+                    ? () {
+                        _handleModel(appProvider);
+                      }
+                    : null,
+                child: widget.mode == 'create'
+                    ? const Text('Create')
+                    : const Text('Train'),
+              ))
+        ]);
   }
 
   @override
@@ -144,7 +145,9 @@ class _TrainModelState extends State<TrainModel> {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
       return Scaffold(
         appBar: _buildAppBar(appProvider),
-        body: appProvider.isLoading ? const Center(child: CircularProgressIndicator.adaptive()) : _buildBody(appProvider),
+        body: appProvider.isLoading
+            ? const Center(child: CircularProgressIndicator.adaptive())
+            : _buildBody(appProvider),
       );
     });
   }

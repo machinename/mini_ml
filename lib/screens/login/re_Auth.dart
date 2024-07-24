@@ -3,6 +3,7 @@ import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_delete.dart';
 import 'package:mini_ml/screens/account/account_email.dart';
 import 'package:mini_ml/utils/constants.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
@@ -23,18 +24,16 @@ class _ReAuthState extends State<ReAuth> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
-  _back() {
+  void _back() {
       Navigator.pop(context);
   }
 
   void _pushToAccountEmail() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const AccountEmail()));
+    Helpers.pushTo(context, const AccountEmail());
   }
 
   void _pushToAccountDelete() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const AccountDelete()));
+    Helpers.pushTo(context, const AccountDelete());
   }
 
 

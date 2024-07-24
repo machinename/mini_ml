@@ -24,53 +24,37 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }
 
   void _forgotPassword(AppProvider appProvider) async {
-    // try {
-    //   await appProvider.forgotPassword(_emailController.text);
-    // } catch (error) {
-    //   _showSnackBar(
-    //     error.toString(),
-    //   );
-    // }
+    try {
+      await appProvider.auth
+          .sendPasswordResetEmail(email: _emailController.text);
+    } catch (error) {
+      _showSnackBar(error.toString());
+    }
   }
 
   _showConfirmEmailDialog(AppProvider appProvider) {
     showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Email'),
-          content: Text('Is ${_emailController.text} the correct email?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                _back();
-              },
-              child: const Text('CANCEL'),
-            ),
-            TextButton(
-              onPressed: () {
-                _forgotPassword(appProvider);
-                _back();
-              },
-              child: const Text('YES'),
-            ),
-          ],
-        );
-      },
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text('Confirm Email'),
+              content: Text(
+                  'Confirm ${_emailController.text} is the correct email?'),
+              actions: <Widget>[
+                TextButton(
+                    onPressed: () {
+                      _back();
+                    },
+                    child: const Text('CANCEL')),
+                TextButton(
+                    onPressed: () {
+                      _forgotPassword(appProvider);
+                      _back();
+                    },
+                    child: const Text('YES'))
+              ]);
+        });
   }
-
-  // _showConfirmEmailDialog(AppProvider appProvider) {
-  //   // Dialogs.showConfirmDialog(
-  //   //   context,
-  //   //   'Confirm Email',
-  //   //   'Is ${_emailController.text} the correct email?',
-  //   //   () {
-  //   //     _forgotPassword(appProvider);
-  //   //     _back();
-  //   //   },
-  //   // );
-  // }
 
   void _showSnackBar(String string) {
     Dialogs.showSnackBar(context, string);
@@ -78,84 +62,67 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   _buildBody(AppProvider appProvider) {
     return ListView(
-      physics: const ClampingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: Constants.getPaddingHorizontal(context),
-        vertical: Constants.getPaddingVertical(context),
-      ),
-      children: [
-        Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                validator: (value) {
-                  if (_isSendPressed) {
-                    return Validators.emailValidator(value);
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                  // floatingLabelBehavior: FloatingLabelBehavior.always
+        physics: const ClampingScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+            horizontal: Constants.getPaddingHorizontal(context),
+            vertical: Constants.getPaddingVertical(context)),
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  validator: (value) {
+                    if (_isSendPressed) {
+                      return Validators.emailValidator(value);
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                      labelText: 'Email', border: OutlineInputBorder()),
+                  onChanged: (_) {
+                    setState(
+                      () {},
+                    );
+                  },
                 ),
-                onChanged: (_) {
-                  setState(
-                    () {},
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SizedBox(
-          height: Constants.getPaddingVertical(context) - 4,
-        ),
-        ElevatedButton(
-          onPressed: _emailController.text.isNotEmpty
-              ? () {
-                  setState(
-                    () {
-                      _isSendPressed = true;
-                    },
-                  );
-                  if (_formKey.currentState != null &&
-                      _formKey.currentState!.validate()) {
-                    _showConfirmEmailDialog(appProvider);
-                  }
-                }
-              : null,
-          child: const Text('Send'),
-        ),
-      ],
-    );
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+              onPressed: _emailController.text.isNotEmpty
+                  ? () {
+                      setState(() {
+                        _isSendPressed = true;
+                      });
+                      if (_formKey.currentState != null &&
+                          _formKey.currentState!.validate()) {
+                        _showConfirmEmailDialog(appProvider);
+                      }
+                    }
+                  : null,
+              child: const Text('Send'))
+        ]);
   }
 
   _buildAppBar() {
     return AppBar(
-      title: const Text('Forgot Password'),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_sharp),
-        onPressed: () {
-          _back();
-        },
-      ),
-      centerTitle: false,
-    );
+        title: const Text('Forgot Password'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back_sharp),
+            onPressed: () {
+              _back();
+            }),
+        centerTitle: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, appProvider, _) {
-        return Scaffold(
-          appBar: _buildAppBar(),
-          body: _buildBody(appProvider),
-        );
-      },
-    );
+    return Consumer<AppProvider>(builder: (context, appProvider, _) {
+      return Scaffold(appBar: _buildAppBar(), body: _buildBody(appProvider));
+    });
   }
 }

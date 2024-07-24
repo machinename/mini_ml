@@ -1,11 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_data_and_privacy.dart';
-import 'package:mini_ml/screens/account/account_email.dart';
 import 'package:mini_ml/screens/account/account_legal.dart';
 import 'package:mini_ml/screens/account/account_security.dart';
-import 'package:mini_ml/screens/login/reAuth.dart';
+import 'package:mini_ml/screens/login/re_Auth.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +19,26 @@ class AccountManage extends StatefulWidget {
 class _AccountManageState extends State<AccountManage> {
   void _back() {
     Navigator.pop(context);
+  }
+
+  void _pushToReAuth(String route) {
+    Helpers.pushTo(context, ReAuth(route: route));
+  }
+
+  void _pushToDataAndPrivacy() {
+    Helpers.pushTo(context, const AccountDataAndPrivacy());
+  }
+
+  void _pushToSecurity() {
+    Helpers.pushTo(context, const AccountSecurity());
+  }
+
+  void _pushToLegal() {
+    Helpers.pushTo(context, const Legal());
+  }
+
+  void _showSnackBar(String string) {
+    Dialogs.showSnackBar(context, string);
   }
 
   Future<void> _signOut(AppProvider appProvider) async {
@@ -61,118 +80,59 @@ class _AccountManageState extends State<AccountManage> {
     }
   }
 
-  void _pushToReAuth(String route) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReAuth(route: route),
-      ),
-    );
-  }
-
-  void _pushToDataAndPrivacy() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AccountDataAndPrivacy(),
-      ),
-    );
-  }
-
-  void _pushToSecurity() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AccountSecurity(),
-      ),
-    );
-  }
-
-  void _pushToLegal() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const Legal(),
-      ),
-    );
-  }
-
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
-  }
-
   _buildBody(AppProvider appProvider) {
-    return ListView(
-      physics: const ClampingScrollPhysics(),
-      children: [
-        ListTile(
+    return ListView(physics: const ClampingScrollPhysics(), children: [
+      ListTile(
           title: const Text("Email"),
           subtitle: Text(appProvider.auth.currentUser?.email ?? "N/A"),
-          onTap: () {
-            _pushToReAuth('email');
-          },
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
-        ListTile(
+          onTap: () => _pushToReAuth('email'),
+          trailing: const Icon(Icons.chevron_right_sharp)),
+      ListTile(
           title: const Text("Security"),
-          onTap: () {
-            _pushToSecurity();
-          },
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
-        ListTile(
-          title: const Text("Data & Privacy"),
-          onTap: () {
-            _pushToDataAndPrivacy();
-          },
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
-        const ListTile(
-          title: Text("Storage"),
-          subtitle: Text('0 MB of 100 MB used'),
-        ),
-        ListTile(
+          onTap: () => _pushToSecurity(),
+          trailing: const Icon(Icons.chevron_right_sharp)),
+      ListTile(
+        title: const Text("Data & Privacy"),
+        onTap: () => _pushToDataAndPrivacy(),
+        trailing: const Icon(Icons.chevron_right_sharp),
+      ),
+      const ListTile(
+        title: Text("Storage"),
+        subtitle: Text('0 MB of 100 MB used'),
+      ),
+      ListTile(
           title: const Text("Support"),
           subtitle: const Text("support@machinename.dev"),
-          onTap: () {
-            _pushToSupport();
-          },
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
-        ListTile(
+          onTap: () => _pushToSupport(),
+          trailing: const Icon(Icons.chevron_right_sharp)),
+      ListTile(
           title: const Text("Legal"),
-          onTap: () {
-            _pushToLegal();
-          },
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
-      ],
-    );
+          onTap: () => _pushToLegal(),
+          trailing: const Icon(Icons.chevron_right_sharp))
+    ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_sharp),
-        onPressed: () {
-          _back();
-        },
-      ),
-      title: const Text("Account"),
-      centerTitle: false,
-      actions: [
-        Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 4,
-            ),
-            child: TextButton(
-              onPressed: () {
-                _signOut(appProvider);
-              },
-              child: const Text("Sign Out"),
-            )),
-      ],
-    );
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_sharp),
+          onPressed: () {
+            _back();
+          },
+        ),
+        title: const Text("Account"),
+        centerTitle: false,
+        actions: [
+          Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4,
+              ),
+              child: TextButton(
+                  onPressed: () {
+                    _signOut(appProvider);
+                  },
+                  child: const Text("Sign Out")))
+        ]);
   }
 
   @override
@@ -186,6 +146,4 @@ class _AccountManageState extends State<AccountManage> {
       },
     );
   }
-  
-  void _sendEmailVerification() {}
 }

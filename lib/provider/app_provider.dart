@@ -6,6 +6,7 @@ import 'package:mini_ml/models/data.dart';
 import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/models/resource.dart';
+import 'package:mini_ml/services/api_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -14,7 +15,7 @@ class AppProvider extends ChangeNotifier {
   bool _isLoading = false;
   late SharedPreferences _prefs;
   Project _projectProvider = Project();
-  final num _userStorageInMegaBytes = 0;
+  num _userStorageInMegaBytes = 0;
 
   // Provider Accessors
   FirebaseAuth get auth => _auth;
@@ -26,6 +27,11 @@ class AppProvider extends ChangeNotifier {
   List<Project> _projects = [];
   // List Accessors
   List<Project> get projects => _projects;
+
+  void setIsLoading(bool isloading) {
+    _isLoading = isloading;
+    notifyListeners();
+  }
 
   Future<void> setProjectProvider(Project project) async {
     try {
@@ -51,16 +57,14 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  void setIsLoading(bool isloading) {
-    _isLoading = isloading;
-    notifyListeners();
-  }
+
 
   Future<void> fetchAppData() async {
     try {
       if (_auth.currentUser != null) {
         await fetchProjects();
         await fetchPreferences();
+        await fetchUserStorage();
       } else {
         print('User Not Logged In');
       }
@@ -69,6 +73,27 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+
+Future<void> fetchUserStorage() async {
+  try {
+    if (_auth.currentUser != null) {
+      APIServices().fetchUserStorage(_auth.currentUser!).then((value) {
+        var userStorage = value;
+        
+        if(userStorage != null) {
+           _userStorageInMegaBytes = userStorage;
+        }
+      });
+    } else {
+      throw ('No user currently logged in');
+    }
+  } catch (error) {
+    print('Error fetching user storage: $error');
+    throw FirebaseException(plugin: 'firebase_storage', message: error.toString());
+  } finally {
+    notifyListeners();
+  }
+}
   Future<void> fetchPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     String? recentProject = _prefs.getString('recent_project');

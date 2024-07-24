@@ -3,8 +3,7 @@ import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/project/project_delete.dart';
 import 'package:mini_ml/screens/project/project_description.dart';
 import 'package:mini_ml/screens/project/project_name.dart';
-import 'package:mini_ml/utils/constants.dart';
-import 'package:mini_ml/widgets/dialogs.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:provider/provider.dart';
 
 class ProjectManage extends StatefulWidget {
@@ -20,30 +19,15 @@ class _ProjectManageState extends State<ProjectManage> {
   }
 
   void _pushToProjectDescription() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProjectDescription(),
-      ),
-    );
+    Helpers.pushTo(context, const ProjectDescription());
   }
 
   void _pushToProjectName() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProjectName(),
-      ),
-    );
+    Helpers.pushTo(context, const ProjectName());
   }
 
   void _pushToProjectDelete() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProjectDelete(),
-      ),
-    );
+    Helpers.pushTo(context, const ProjectDelete());
   }
 
   _buildBody(AppProvider appProvider) {
@@ -58,7 +42,7 @@ class _ProjectManageState extends State<ProjectManage> {
           title: const Text("Description"),
           subtitle: appProvider.projectProvider.description.isNotEmpty
               ? Text(appProvider.projectProvider.description)
-              : const Text('N/A'),
+              : null,
           onTap: () => _pushToProjectDescription()),
       ListTile(
         title: const Text("Resources"),

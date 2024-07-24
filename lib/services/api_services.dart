@@ -107,6 +107,10 @@ class APIServices {
     } catch (error) {
       print(error.toString());
       throw ('Error Creating Resource, If The Error Persists Contact Support');
+    } finally {
+      if (dataPath != null) {
+        File(dataPath).delete();
+      }
     }
   }
 
@@ -143,6 +147,41 @@ class APIServices {
       if (response.statusCode != 201) {
         throw (response.body.toString());
       }
+    } catch (error) {
+      print(error.toString());
+      throw ('Error Creating Project, If The Error Persists Contact Support');
+    }
+  }
+
+
+  Future<num?> fetchUserStorage(User user) async {
+    try {
+      final serverPublicKey = await _fetchServerPublicKey(user);
+      final encryptedUserId = _rsaEncrypt(user.uid, serverPublicKey);
+      final idToken = await user.getIdToken();
+      final url = Uri.parse('$_baseUrl/fetch_user_storage');
+
+      final Map<String, dynamic> body = {
+        'user_id': encryptedUserId,
+      };
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $idToken',
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      if (response.statusCode != 201) {
+        throw (response.body.toString());
+      }
+
+      print(jsonDecode(response.body)['total_size_in_mega_bytes']);
+      return jsonDecode(response.body)['total_size_in_mega_bytes'];
     } catch (error) {
       print(error.toString());
       throw ('Error Creating Project, If The Error Persists Contact Support');

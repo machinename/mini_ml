@@ -7,7 +7,7 @@ from Crypto.Util import Padding
 from flask import Flask, jsonify, render_template, request
 from io import StringIO
 import json
-from services import firebase_services, training_services
+from services import firebase_services, training_services, bucket
 from helpers import validation
 import pandas as pd
 from flask import Flask, jsonify
@@ -35,6 +35,42 @@ def fetch_server_public_key():
     except Exception as error:
         print(f'Error During Get Public Key Request: {str(error)}')
         return jsonify({'Error During Get Public Key Request': str(error)}), 500
+    
+@app.route('/fetch_user_storage', methods=['POST'])
+def subscriber():
+    try:
+        is_auth, auth_response, code = firebase_services.authenticate_request()
+        if not is_auth:
+            return auth_response, code
+
+        request_data = request.get_json()
+
+        encrypted_user_id = base64.b64decode(request_data['user_id'])
+        if not encrypted_user_id:
+            return jsonify({'Missing Required Parameters'}), 400
+    
+        # RSA
+        cipher_rsa = PKCS1_OAEP.new(_server_key)
+        decrypted_user_id = cipher_rsa.decrypt(encrypted_user_id)
+        user_id = decrypted_user_id.decode('utf-8')
+    
+        total_size_bytes = 0
+        blobs = bucket.list_blobs(prefix=f'users/{user_id}/')
+        subscriber_storage_limit_in_mega_bytes = 100
+        print(f'subscriber_storage_limit_in_mega_bytes {subscriber_storage_limit_in_mega_bytes}')
+        for blob in blobs:
+            total_size_bytes += blob.size
+        print(f'total_size_bytes: {total_size_bytes}')
+
+        total_size_in_mega_bytes = total_size_bytes / (1024 * 1024)
+        
+        print(f'total_size_in_mega_bytes: {total_size_in_mega_bytes}')
+
+        return jsonify({'total_size_in_mega_bytes': total_size_in_mega_bytes}), 200
+        
+    except Exception as error:
+        print(f'{str(error)}')
+        return jsonify({'Error Fetching User Storage': str(error)}), 500
 
 @app.route('/subscriber_operation', methods=['POST'])
 def subscriber():

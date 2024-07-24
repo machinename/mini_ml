@@ -9,24 +9,12 @@ class Verify extends StatelessWidget {
   }
 
   _buildBody(BuildContext context) {
-    return Column(
-    
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-         padding: EdgeInsets.symmetric(
-            horizontal: Constants.getPaddingHorizontal(context)
-            ),
-            child: 
-        const Center(child:  Text('Verify your email address to enjoy all of mini ML features!'))),
-        TextButton(
-              onPressed: () {
-                _exit(context);
-              },
-              child: const Text('Close'),
-            ),
-      ]
-    );
+    return Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: Constants.getPaddingHorizontal(context)),
+        child: const Center(
+            child: Text(
+                'Verify your email address to enjoy all of mini ML features!')));
   }
 
   _buildAppBar(BuildContext context) {
@@ -36,7 +24,7 @@ class Verify extends StatelessWidget {
             onPressed: () {
               _exit(context);
             }),
-            title: const Text('Verify Email'),
+        title: const Text('Verify Email'),
         automaticallyImplyLeading: false,
         centerTitle: false);
   }
