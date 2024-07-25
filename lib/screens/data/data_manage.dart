@@ -30,23 +30,26 @@ class _DataManageState extends State<DataManage> {
   void _pushToDataDelete() {
     Helpers.pushTo(context, const DataDelete());
   }
+  void _pushToDataVariables() {
+    // Helpers.pushTo(context, const DataVariables());
+  }
 
-  // void _dataTypeIcon(AppProvider appProvider) {
-  //   switch (appProvider.projectProvider.currentData?.dataType) {
-  //     case DataType.tabular:
-  //       return const Icon(Icons.table_chart_sharp);
-  //     // case DataType.image:
-  //     //   return const Icon(Icons.image_sharp);
-  //     // case DataType.text:
-  //     //   return const Icon(Icons.text_fields_sharp);
-  //     // case DataType.audio:
-  //     //   return const Icon(Icons.audiotrack_sharp);
-  //     // case DataType.video:
-  //     //   return const Icon(Icons.video_collection_sharp);
-  //     default:
-  //       return null;
-  //   }
-  // }
+  Widget? _dataTypeIcon(AppProvider appProvider) {
+    switch (appProvider.projectProvider.currentData?.dataType) {
+      case DataType.tabular:
+        return const Icon(Icons.table_chart_sharp);
+      // case DataType.image:
+      //   return const Icon(Icons.image_sharp);
+      // case DataType.text:
+      //   return const Icon(Icons.text_fields_sharp);
+      // case DataType.audio:
+      //   return const Icon(Icons.audiotrack_sharp);
+      // case DataType.video:
+      //   return const Icon(Icons.video_collection_sharp);
+      default:
+        return null;
+    }
+  }
 
   _buildBody(AppProvider appProvider) {
     Data? data = appProvider.projectProvider.currentData;
@@ -54,19 +57,24 @@ class _DataManageState extends State<DataManage> {
       return const Center(child: Text("Data not found"));
     } else {
       return ListView(physics: const ClampingScrollPhysics(), children: [
+        const ListTile(
+          title: Text("Info"),
+        ),
         ListTile(
+            leading: const Icon(Icons.edit_note_sharp),
             title: const Text("Name"),
             subtitle: Text(data.name),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _pushToDataName()),
         ListTile(
+            leading: const Icon(Icons.description_sharp),
             title: const Text("Description"),
-            subtitle: data.description.isNotEmpty
-                ? Text(data.description)
-                : null,
+            subtitle:
+                data.description.isNotEmpty ? Text(data.description) : null,
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _pushToDataDescription()),
         ListTile(
+            leading: _dataTypeIcon(appProvider),
             title: const Text("Data Type"),
             subtitle: Text(data.dataType
                 .toString()
@@ -75,8 +83,10 @@ class _DataManageState extends State<DataManage> {
                 .replaceFirstMapped(RegExp(r'^[a-z]'),
                     (match) => match.group(0)!.toUpperCase()))),
         ListTile(
+            leading: const Icon(Icons.list_sharp),
             title: const Text("Variables"),
-            subtitle: Text("${data.variables.length} variables"))
+            subtitle: Text("${data.variables.length} variables"),
+            onTap: () => _pushToDataVariables())
       ]);
     }
   }

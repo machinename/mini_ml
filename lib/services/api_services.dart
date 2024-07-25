@@ -176,11 +176,9 @@ class APIServices {
           )
           .timeout(const Duration(seconds: 20));
 
-      if (response.statusCode != 201) {
+      if (response.statusCode != 200) {
         throw (response.body.toString());
       }
-
-      print(jsonDecode(response.body)['total_size_in_mega_bytes']);
       return jsonDecode(response.body)['total_size_in_mega_bytes'];
     } catch (error) {
       print(error.toString());

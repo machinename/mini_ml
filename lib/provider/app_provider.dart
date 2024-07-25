@@ -15,13 +15,13 @@ class AppProvider extends ChangeNotifier {
   bool _isLoading = false;
   late SharedPreferences _prefs;
   Project _projectProvider = Project();
-  num _userStorageInMegaBytes = 0;
+  String _userStorageInMegaBytes = "0";
 
   // Provider Accessors
   FirebaseAuth get auth => _auth;
   bool get isLoading => _isLoading;
   Project get projectProvider => _projectProvider;
-  num get userStorageInMegaBytes => _userStorageInMegaBytes;
+  String get userStorageInMegaBytes => _userStorageInMegaBytes;
 
   // Lists Instances
   List<Project> _projects = [];
@@ -57,8 +57,6 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-
-
   Future<void> fetchAppData() async {
     try {
       if (_auth.currentUser != null) {
@@ -73,27 +71,28 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-
-Future<void> fetchUserStorage() async {
-  try {
-    if (_auth.currentUser != null) {
-      APIServices().fetchUserStorage(_auth.currentUser!).then((value) {
-        var userStorage = value;
-        
-        if(userStorage != null) {
-           _userStorageInMegaBytes = userStorage;
+  Future<void> fetchUserStorage() async {
+    try {
+      if (_auth.currentUser != null) {
+        num? storage = await APIServices().fetchUserStorage(_auth.currentUser!);
+        if (storage != null) {
+          _userStorageInMegaBytes = double.parse(storage.toString()).toStringAsFixed(2);
+          print(_userStorageInMegaBytes);
+        } else {
+          throw ('Error fetching user storage');
         }
-      });
-    } else {
-      throw ('No user currently logged in');
+      } else {
+        throw ('No user currently logged in');
+      }
+    } catch (error) {
+      print('Error fetching user storage: $error');
+      throw FirebaseException(
+          plugin: 'firebase_storage', message: error.toString());
+    } finally {
+      notifyListeners();
     }
-  } catch (error) {
-    print('Error fetching user storage: $error');
-    throw FirebaseException(plugin: 'firebase_storage', message: error.toString());
-  } finally {
-    notifyListeners();
   }
-}
+
   Future<void> fetchPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     String? recentProject = _prefs.getString('recent_project');
@@ -323,7 +322,8 @@ Future<void> fetchUserStorage() async {
     }
   }
 
-  Future<void> deleteDataFromAssociatedModels(String projectId, Data data) async {
+  Future<void> deleteDataFromAssociatedModels(
+      String projectId, Data data) async {
     try {
       if (_auth.currentUser != null) {
         final DocumentReference docRef = FirebaseFirestore.instance

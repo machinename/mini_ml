@@ -82,30 +82,38 @@ class _AccountManageState extends State<AccountManage> {
 
   _buildBody(AppProvider appProvider) {
     return ListView(physics: const ClampingScrollPhysics(), children: [
+      const ListTile(title: Text("Info")),
       ListTile(
+          leading: const Icon(Icons.email_sharp),
           title: const Text("Email"),
           subtitle: Text(appProvider.auth.currentUser?.email ?? "N/A"),
           onTap: () => _pushToReAuth('email'),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
+          leading: const Icon(Icons.lock_sharp),
           title: const Text("Security"),
           onTap: () => _pushToSecurity(),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
+        leading: const Icon(Icons.privacy_tip_sharp),
         title: const Text("Data & Privacy"),
         onTap: () => _pushToDataAndPrivacy(),
         trailing: const Icon(Icons.chevron_right_sharp),
       ),
-      const ListTile(
-        title: Text("Storage"),
-        subtitle: Text('0 MB of 100 MB used'),
-      ),
       ListTile(
+        leading: const Icon(Icons.storage_sharp),
+        title: const Text("Storage"),
+        subtitle:
+            Text('${appProvider.userStorageInMegaBytes} MB of 100 MB used'),
+      ),
+      const ListTile(title: Text("About")),
+      ListTile(
+          leading: const Icon(Icons.help_sharp),
           title: const Text("Support"),
-          subtitle: const Text("support@machinename.dev"),
           onTap: () => _pushToSupport(),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
+          leading: const Icon(Icons.info_sharp),
           title: const Text("Legal"),
           onTap: () => _pushToLegal(),
           trailing: const Icon(Icons.chevron_right_sharp))

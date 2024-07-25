@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
+import 'package:mini_ml/screens/account/account_licenses.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,6 +16,11 @@ class Legal extends StatefulWidget {
 class _LegalState extends State<Legal> {
   void _back() {
     Navigator.pop(context);
+  }
+
+  
+void _pushToLicenses() {
+    Helpers.pushTo(context, const AccountLicenses());
   }
 
   Future<void> _pushToTermsOfService() async {
@@ -52,24 +59,6 @@ class _LegalState extends State<Legal> {
     }
   }
 
-  Future<void> _pushToLicenses() async {
-    try {
-      final Uri uri = Uri(
-        scheme: 'https',
-        path: 'machinename.dev/licenses',
-      );
-
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        throw Exception('Could not launch ${uri.path}');
-      }
-    } catch (error) {
-      _showSnackBar('Error Occured');
-      throw Exception(
-        error.toString(),
-      );
-    }
-  }
-
   void _showSnackBar(String string) {
     Dialogs.showSnackBar(context, string);
   }
@@ -80,16 +69,19 @@ class _LegalState extends State<Legal> {
       children: [
         // ),
         ListTile(
+          leading: const Icon(Icons.description_sharp),
           title: const Text("Terms of Service"),
           onTap: () => _pushToTermsOfService(),
           trailing: const Icon(Icons.chevron_right),
         ),
         ListTile(
+          leading: const Icon(Icons.privacy_tip_sharp), 
           title: const Text("Privacy Policy"),
           onTap: () => _pushToPrivacyPolicy(),
           trailing: const Icon(Icons.chevron_right),
         ),
         ListTile(
+          leading: const Icon(Icons.library_books_sharp),
           title: const Text("Licenses"),
           onTap: () => _pushToLicenses(),
           trailing: const Icon(Icons.chevron_right),
