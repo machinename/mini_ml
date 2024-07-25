@@ -1,9 +1,0 @@
-## Folders
-.venv/
-__pycache__/
-
-## Files
-.DS_Store
-.env
-serviceAccountKeyFirebase.json
-app.yaml
