@@ -59,7 +59,24 @@ def fetch_resource(user_id: str, project_id: str, resource_id: str, resource_typ
         print(f'Error Occured While Fetching User Resource: {str(error)}')
         return None, jsonify('Error Occured While Fetching User Resource'), 500
     
-def fetch_user_storage(user_id: str, resource_size_bytes: int):
+def fetch_user_storage(user_id: str):
+    try:
+        total_size_bytes = 0
+        blobs = bucket.list_blobs(prefix=f'users/{user_id}/')
+        subscriber_storage_limit_in_mega_bytes = 100
+        print(f'subscriber_storage_limit_in_mega_bytes {subscriber_storage_limit_in_mega_bytes}')
+        for blob in blobs:
+            total_size_bytes += blob.size
+        print(f'total_size_bytes: {total_size_bytes}')
+
+        total_size_in_mega_bytes = total_size_bytes / (1024 * 1024)
+        print(f'total_size_in_mega_bytes: {total_size_in_mega_bytes}')   
+        return jsonify({'total_size_in_mega_bytes': total_size_in_mega_bytes}), 200
+    except Exception as error:
+        print(f'Error Occured While Checking Cloud Storage: {str(error)}')
+        return jsonify('Error Occured While Checking Cloud Storage'), 500
+    
+def check_user_storage(user_id: str, resource_size_bytes: int):
     try:
         total_size_bytes = 0
         blobs = bucket.list_blobs(prefix=f'users/{user_id}/')

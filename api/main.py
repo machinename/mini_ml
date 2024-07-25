@@ -7,7 +7,7 @@ from Crypto.Util import Padding
 from flask import Flask, jsonify, render_template, request
 from io import StringIO
 import json
-from services import firebase_services, training_services, bucket
+from services import firebase_services, training_services
 from helpers import validation
 import pandas as pd
 from flask import Flask, jsonify
@@ -37,7 +37,7 @@ def fetch_server_public_key():
         return jsonify({'Error During Get Public Key Request': str(error)}), 500
     
 @app.route('/fetch_user_storage', methods=['POST'])
-def subscriber():
+def fetch_user_storage():
     try:
         is_auth, auth_response, code = firebase_services.authenticate_request()
         if not is_auth:
@@ -53,70 +53,13 @@ def subscriber():
         cipher_rsa = PKCS1_OAEP.new(_server_key)
         decrypted_user_id = cipher_rsa.decrypt(encrypted_user_id)
         user_id = decrypted_user_id.decode('utf-8')
-    
-        total_size_bytes = 0
-        blobs = bucket.list_blobs(prefix=f'users/{user_id}/')
-        subscriber_storage_limit_in_mega_bytes = 100
-        print(f'subscriber_storage_limit_in_mega_bytes {subscriber_storage_limit_in_mega_bytes}')
-        for blob in blobs:
-            total_size_bytes += blob.size
-        print(f'total_size_bytes: {total_size_bytes}')
-
-        total_size_in_mega_bytes = total_size_bytes / (1024 * 1024)
         
-        print(f'total_size_in_mega_bytes: {total_size_in_mega_bytes}')
-
-        return jsonify({'total_size_in_mega_bytes': total_size_in_mega_bytes}), 200
+        response, code = firebase_services.fetch_user_storage(user_id=user_id)
         
+        return response, code
     except Exception as error:
         print(f'{str(error)}')
         return jsonify({'Error Fetching User Storage': str(error)}), 500
-
-@app.route('/subscriber_operation', methods=['POST'])
-def subscriber():
-    try:
-        is_auth, auth_response, code = firebase_services.authenticate_request()
-        if not is_auth:
-            return auth_response, code
-
-        request_data = request.get_json()
-        
-        encrypted_subscriber_json = base64.b64decode(request_data['subscriber_json'])
-        encrypted_iv = base64.b64decode(request_data['iv'])
-        encrypted_key = base64.b64decode(request_data['key'])
-        encrypted_user_id = base64.b64decode(request_data['user_id'])
-        encrypted_operation = base64.b64decode(request_data['operation'])
-        
-        if not encrypted_subscriber_json or not encrypted_iv or not encrypted_key or not encrypted_user_id:
-            return jsonify({'Missing Required Parameters'}), 400
-        
-        # RSA
-        cipher_rsa = PKCS1_OAEP.new(_server_key)
-        decrypted_iv = cipher_rsa.decrypt(encrypted_iv).decode('utf-8')
-        decrypted_key = cipher_rsa.decrypt(encrypted_key).decode('utf-8')
-        decrypted_user_id = cipher_rsa.decrypt(encrypted_user_id)
-        decrypted_operation = cipher_rsa.decrypt(encrypted_operation)
-   
-        iv = base64.b64decode(decrypted_iv)
-        key = base64.b64decode(decrypted_key)
-        user_id = decrypted_user_id.decode('utf-8')
-        operation = decrypted_operation.decode('utf-8')
-        
-        # AES
-        cipher_aes_json = AES.new(key, AES.MODE_CBC, iv=iv)
-        padded_resource_json = cipher_aes_json.decrypt(encrypted_subscriber_json)
-        unpadded_json = Padding.unpad(padded_resource_json , AES.block_size)
-        decrypted_subscriber_json = unpadded_json
-        subscriber_dict = json.loads(decrypted_subscriber_json)
-        
-        is_success, subscriber_response, code = firebase_services.subscriberOperation(operation=operation, subscriber_dict=subscriber_dict, user_id=user_id)
-        if not is_success:
-            return subscriber_response, code
-        
-        return jsonify(), 201
-    except Exception as error:
-        print(f'Error During Subscriber Operation Request: {str(error)}')
-        return jsonify({'Error During Subscriber Operation Request': str(error)}), 500
     
 @app.route('/create_project', methods=['POST'])
 def create_project():
@@ -259,7 +202,7 @@ def create_resource():
         
         print(resource_size_bytes)
         
-        proposed_total_size_in_mega_bytes, response, code = firebase_services.fetch_user_storage(user_id=user_id, resource_size_bytes=resource_size_bytes)
+        proposed_total_size_in_mega_bytes, response, code = firebase_services.check_user_storage(user_id=user_id, resource_size_bytes=resource_size_bytes)
         if not proposed_total_size_in_mega_bytes:
             return response, code
         
@@ -275,7 +218,6 @@ def create_resource():
         if resource_temp_path and os.path.exists(resource_temp_path):
             os.remove(resource_temp_path)
             
-
 # if __name__ == "__main__":
 #     app.run(host="127.0.0.1", port=8080, debug=True)
 if __name__ == "__main__":
