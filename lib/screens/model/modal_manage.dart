@@ -3,7 +3,6 @@ import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/model/model_delete.dart';
 import 'package:mini_ml/screens/model/model_description.dart';
-import 'package:mini_ml/screens/model/model_evaluation.dart';
 import 'package:mini_ml/screens/model/model_name.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +61,7 @@ class _ModelManageState extends State<ModelManage> {
         physics: const ClampingScrollPhysics(),
         children: [
           const ListTile(
-            title: const Text("Info"),
+            title: Text("Info"),
           ),
           ListTile(
             leading: const Icon(Icons.edit_note_sharp),

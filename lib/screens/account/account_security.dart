@@ -14,7 +14,7 @@ class AccountSecurity extends StatefulWidget {
 }
 
 class _AccountSecurityState extends State<AccountSecurity> {
-  bool _showBack = false;
+  final bool _showBack = false;
 
   void _back() {
     Navigator.pop(context);

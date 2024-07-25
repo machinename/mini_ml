@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mini_ml/models/data.dart';
 import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/utils/constants.dart';
