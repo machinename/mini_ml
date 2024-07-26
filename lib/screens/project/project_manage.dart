@@ -45,10 +45,14 @@ class _ProjectManageState extends State<ProjectManage> {
               : null,
           onTap: () => _pushToProjectDescription()),
       ListTile(
-        title: const Text("Resources"),
-        subtitle: Text(
-            "${appProvider.projectProvider.data.length + appProvider.projectProvider.models.length} resources")
-      )
+          title: const Text("Resources"),
+          subtitle: appProvider.projectProvider.data.length +
+                      appProvider.projectProvider.models.length ==
+                  1
+              ? Text(
+                  "${appProvider.projectProvider.data.length + appProvider.projectProvider.models.length} resource")
+              : Text(
+                  "${appProvider.projectProvider.data.length + appProvider.projectProvider.models.length} resources"))
     ]);
   }
 
@@ -64,7 +68,7 @@ class _ProjectManageState extends State<ProjectManage> {
           IconButton(
               icon: const Icon(Icons.delete_sharp),
               onPressed: () {
-               _pushToProjectDelete(); 
+                _pushToProjectDelete();
               }),
         ]);
   }

@@ -77,61 +77,82 @@ class _ProjectCreateState extends State<ProjectCreate> {
       if (appProvider.isLoading)
         const Center(
           child: CircularProgressIndicator.adaptive(),
-        ), Padding(
+        ),
+      Padding(
           padding: EdgeInsets.symmetric(
               horizontal: Constants.getPaddingHorizontal(context),
               vertical: Constants.getPaddingVertical(context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-                Form(
-                    key: _formKey,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TextFormField(
-                              enabled: appProvider.isLoading == false,
-                              maxLength:
-                                  _nameController.text.length > 35 ? 40 : null,
-                              controller: _nameController,
-                              validator: (value) {
-                                if (_isCreatePressed) {
-                                  return Validators.nameValidator(
-                                      value, 'Project');
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Form(
+                key: _formKey,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                          enabled: appProvider.isLoading == false,
+                          maxLength:
+                              _nameController.text.length > 35 ? 40 : null,
+                          controller: _nameController,
+                          validator: (value) {
+                            if (_isCreatePressed) {
+                              return Validators.nameValidator(value, 'Project');
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                              labelText: 'Name', border: OutlineInputBorder()),
+                          onChanged: (_) {
+                            setState(() {});
+                          }),
+                      SizedBox(height: Constants.getPaddingVertical(context)),
+                      TextFormField(
+                          enabled: appProvider.isLoading == false,
+                          maxLength: _descriptionController.text.length > 75
+                              ? 100
+                              : null,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 3,
+                          controller: _descriptionController,
+                          decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder()),
+                          validator: (value) {
+                            if (_isCreatePressed) {
+                              return Validators.descriptionValidator(
+                                  value, "Project");
+                            }
+                            return null;
+                          },
+                          onChanged: (_) {
+                            setState(() {});
+                          }),
+                      SizedBox(
+                          height: Constants.getPaddingVertical(context) - 4),
+                      ElevatedButton(
+                        onPressed: _nameController.text.isNotEmpty &&
+                                !appProvider.isLoading
+                            ? () {
+                                setState(() {
+                                  _isCreatePressed = true;
+                                });
+                                if (_formKey.currentState != null &&
+                                    _formKey.currentState!.validate()) {
+                                  _handleProjectCreate(appProvider);
                                 }
-                                return null;
-                              },
-                              decoration: const InputDecoration(
-                                  labelText: 'Name',
-                                  border: OutlineInputBorder()),
-                              onChanged: (_) {
-                                setState(() {});
-                              }),
-                          SizedBox(
-                              height: Constants.getPaddingVertical(context)),
-                          TextFormField(
-                            enabled: appProvider.isLoading == false,
-                              maxLength: _descriptionController.text.length > 75
-                                  ? 100
-                                  : null,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 3,
-                              controller: _descriptionController,
-                              decoration: const InputDecoration(
-                                  labelText: 'Description',
-                                  border: OutlineInputBorder()),
-                              validator: (value) {
-                                if (_isCreatePressed) {
-                                  return Validators.descriptionValidator(
-                                      value, "Project");
-                                }
-                                return null;
-                              },
-                              onChanged: (_) {
-                                setState(() {});
-                              })
-                        ]))
-              ])) ]);
+                              }
+                            : null,
+                        style: ButtonStyle(
+                          shape:
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
+                                  const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero)),
+                        ),
+                        child: const Text('Create'),
+                      )
+                    ]))
+          ]))
+    ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
@@ -147,19 +168,18 @@ class _ProjectCreateState extends State<ProjectCreate> {
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: TextButton(
-                
-                  onPressed: _nameController.text.isNotEmpty &&
-                          !appProvider.isLoading
-                      ? () { 
-                          setState(() {
-                            _isCreatePressed = true;
-                          });
-                          if (_formKey.currentState != null &&
-                              _formKey.currentState!.validate()) {
-                            _handleProjectCreate(appProvider);
-                          }
-                        }
-                      : null,
+                  onPressed:
+                      _nameController.text.isNotEmpty && !appProvider.isLoading
+                          ? () {
+                              setState(() {
+                                _isCreatePressed = true;
+                              });
+                              if (_formKey.currentState != null &&
+                                  _formKey.currentState!.validate()) {
+                                _handleProjectCreate(appProvider);
+                              }
+                            }
+                          : null,
                   child: const Text('Create')))
         ]);
   }
