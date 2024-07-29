@@ -33,11 +33,13 @@ class _ProjectManageState extends State<ProjectManage> {
   _buildBody(AppProvider appProvider) {
     return ListView(physics: const ClampingScrollPhysics(), children: [
       ListTile(
+          leading: const Icon(Icons.edit_note_sharp),
           trailing: const Icon(Icons.chevron_right),
           title: const Text("Name"),
           subtitle: Text(appProvider.projectProvider.name),
           onTap: () => _pushToProjectName()),
       ListTile(
+          leading: const Icon(Icons.description_sharp),
           trailing: const Icon(Icons.chevron_right),
           title: const Text("Description"),
           subtitle: appProvider.projectProvider.description.isNotEmpty
@@ -45,6 +47,7 @@ class _ProjectManageState extends State<ProjectManage> {
               : null,
           onTap: () => _pushToProjectDescription()),
       ListTile(
+          leading: const Icon(Icons.cloud_sharp),
           title: const Text("Resources"),
           subtitle: appProvider.projectProvider.data.length +
                       appProvider.projectProvider.models.length ==

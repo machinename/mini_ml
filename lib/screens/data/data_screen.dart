@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mini_ml/models/data.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/data/data_manage.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:provider/provider.dart';
 
-class DataScreen extends StatelessWidget {
+class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
+
+  @override
+  State<DataScreen> createState() => _DataScreenState();
+}
+
+class _DataScreenState extends State<DataScreen> {
+  String selected = "";
 
   static final GlobalKey<RefreshIndicatorState> _dataRefreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -16,7 +24,10 @@ class DataScreen extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, AppProvider appProvider) {
     return Column(children: [
-      const ListTile(title: Text('Data', style: TextStyle(fontSize: 30))),
+      const ListTile(
+          title: Text('Data',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          trailing: Icon(Icons.search_sharp)),
       Expanded(
           child: ListView.builder(
               itemCount: appProvider.projectProvider.data.length,

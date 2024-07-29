@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/utils/constants.dart';
+import 'package:mini_ml/utils/helpers.dart';
 
 class Verify extends StatelessWidget {
   const Verify({super.key});
@@ -12,9 +13,24 @@ class Verify extends StatelessWidget {
     return Padding(
         padding: EdgeInsets.symmetric(
             horizontal: Constants.getPaddingHorizontal(context)),
-        child: const Center(
-            child: Text(
-                'Verify your email address to enjoy all of mini ML features!')));
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Verify your email address to enjoy mini ML features!',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: Constants.getPaddingVertical(context)),
+              ElevatedButton(
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero)),
+                  ),
+                  onPressed: () => _exit(context),
+                  child: const Text('Exit'))
+            ]));
   }
 
   _buildAppBar(BuildContext context) {

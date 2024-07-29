@@ -8,7 +8,8 @@ import 'package:mini_ml/screens/model/model_screen.dart';
 import 'package:mini_ml/screens/model/modal_create.dart';
 import 'package:mini_ml/screens/project/project_create.dart';
 import 'package:mini_ml/screens/project/project_manage.dart';
-import 'package:mini_ml/screens/project/project_search.dart';
+import 'package:mini_ml/screens/project/projects.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
@@ -29,35 +30,27 @@ class _HomeState extends State<Home> {
   ];
 
   void _pushToDataCreate() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const DataCreate()));
+    Helpers.pushTo(context, const DataCreate());
   }
 
   void _pushToCreateProject() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ProjectCreate()));
+    Helpers.pushTo(context, const ProjectCreate());
   }
 
   void _pushToCreateModel() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const ModalCreate()));
+    Helpers.pushTo(context, const ModalCreate());
   }
 
   void _pushToManageProject() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ProjectManage()));
+    Helpers.pushTo(context, const ProjectManage());
   }
 
   void _pushToAccountScreen() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const AccountManage()));
+    Helpers.pushTo(context, const AccountManage());
   }
 
   void _pushToSearchProjects() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            maintainState: false, builder: (context) => const ProjectSearch()));
+    Helpers.pushTo(context, const Projects());
   }
 
   _buildBody() {
@@ -67,7 +60,7 @@ class _HomeState extends State<Home> {
   _buildAppBar(BuildContext context, AppProvider appProvider) {
     return AppBar(
         automaticallyImplyLeading: false,
-        // titleSpacing: 0,
+        titleSpacing: 0,
         // titleSpacing: 2,
         // leading: const Icon(Icons.cloud_sharp),
         title: ListTile(
@@ -76,18 +69,29 @@ class _HomeState extends State<Home> {
             subtitle: Row(children: [
               Text(appProvider.projectProvider.name,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
-              const Icon(Icons.arrow_drop_down)
+              // const Icon(Icons.arrow_drop_down)
             ]),
-            onTap: () => _pushToSearchProjects()),
+            // trailing: appProvider.projectProvider.name.isNotEmpty
+            //     ? const Icon(Icons.chevron_right_sharp)
+            //     : null,
+            onTap: appProvider.projectProvider.name.isNotEmpty
+                ? () => _pushToManageProject()
+                : null),
         centerTitle: false,
         actions: [
-          if (appProvider.projectProvider.name.isNotEmpty)
-            IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: () => _pushToManageProject()),
+          IconButton(
+              icon: const Icon(Icons.search_sharp),
+              onPressed: () => _pushToSearchProjects()),
           IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () => _pushToCreateProject()),
+              onPressed: () {
+                if (appProvider.auth.currentUser?.emailVerified == false) {
+                  Dialogs.showMessageDialog(context, "Email Verification",
+                      "Please verify your email address to create a project!");
+                } else {
+                  _pushToCreateProject();
+                }
+              }),
           IconButton(
               icon: const Icon(Icons.account_circle_outlined),
               onPressed: () => _pushToAccountScreen())
@@ -117,16 +121,20 @@ class _HomeState extends State<Home> {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
       return Scaffold(
           appBar: _buildAppBar(context, appProvider),
-          body: appProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _buildBody(),
+          body: _buildBody(),
           floatingActionButton: _currentTabIndex == 0
               ? null
               : FloatingActionButton(
                   onPressed: () {
-                    if (appProvider.auth.currentUser?.emailVerified == false) {
+                    if (appProvider.auth.currentUser?.emailVerified == false &&
+                        _currentTabIndex == 1) {
                       Dialogs.showMessageDialog(context, "Email Verification",
-                          "Please verify your email address to create a project!");
+                          "Please verify your email address to create a model resource!");
+                    } else if (appProvider.auth.currentUser?.emailVerified ==
+                            false &&
+                        _currentTabIndex == 2) {
+                      Dialogs.showMessageDialog(context, "Email Verification",
+                          "Please verify your email address to create a data resource!");
                     } else {
                       _handleActionButton(appProvider);
                     }
@@ -141,9 +149,8 @@ class _HomeState extends State<Home> {
     // if (appProvider.auth.currentUser?.emailVerified == false) {
     //   Dialogs.showMessageDialog(context, "Email Verification",
     //       "Please verify your email address to create a resource!");
-    // } else 
-    if (_currentTabIndex == 1 &&
-        appProvider.projectProvider.name.isEmpty) {
+    // } else
+    if (_currentTabIndex == 1 && appProvider.projectProvider.name.isEmpty) {
       Dialogs.showMessageDialog(context, "Create Model",
           "Please select a project first to create a model resource!");
     } else if (_currentTabIndex == 1 &&

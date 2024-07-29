@@ -25,7 +25,7 @@ class _ReAuthState extends State<ReAuth> {
   bool _isPasswordVisible = false;
 
   void _back() {
-      Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   void _pushToAccountEmail() {
@@ -35,7 +35,6 @@ class _ReAuthState extends State<ReAuth> {
   void _pushToAccountDelete() {
     Helpers.pushTo(context, const AccountDelete());
   }
-
 
   void _resetPassword(AppProvider appProvider) async {
     try {
@@ -71,50 +70,75 @@ class _ReAuthState extends State<ReAuth> {
   }
 
   _buildBody(AppProvider appProvider) {
-    return 
-      Stack(
-        children: [
-             if (appProvider.isLoading)
-          const Center(
-            child: CircularProgressIndicator.adaptive(),
-          ),
-    
-     Padding(
-        padding: EdgeInsets.symmetric(
+    String message = '';
+    if (widget.route == '') {
+    } else {}
+
+    switch (widget.route) {
+      case 'email':
+        message = 'Please reauthenticate to update your email.';
+        break;
+      case 'delete':
+        message = 'Reauthenticate to access account deletion.';
+        break;
+      case 'password':
+        message = 'Please reauthenticate to update your password.';
+        break;
+      default:
+        message = '';
+    }
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      ListView(
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.symmetric(
             horizontal: Constants.getPaddingHorizontal(context),
-            vertical: Constants.getPaddingVertical(context)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+            vertical: Constants.getPaddingVertical(context),
+          ),
           children: [
+            Text(message, textAlign: TextAlign.left),
+            SizedBox(height: Constants.getPaddingVertical(context)),
             Form(
                 key: _formKey,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                          enabled: !appProvider.isLoading,
-                          obscureText: _isPasswordVisible ? false : true,
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                              labelText: 'Password',
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                  icon: Icon(_isPasswordVisible
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  })),
-                          onChanged: (_) {
-                            setState(() {});
-                          })
-                    ]))
-
-          ],
-        ))
-           ]);
+                child: TextFormField(
+                    enabled: !appProvider.isLoading,
+                    obscureText: _isPasswordVisible ? false : true,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                            icon: Icon(_isPasswordVisible
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            })),
+                    onChanged: (_) {
+                      setState(() {});
+                    })),
+            SizedBox(height: Constants.getPaddingVertical(context) - 4),
+            ElevatedButton(
+              style: ButtonStyle(
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero)),
+              ),
+              onPressed:
+                  _passwordController.text.isNotEmpty && !appProvider.isLoading
+                      ? () {
+                          _reAuthUser(appProvider);
+                        }
+                      : null,
+              child: const Text('Next'),
+            )
+          ])
+    ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
@@ -127,19 +151,6 @@ class _ReAuthState extends State<ReAuth> {
         },
       ),
       centerTitle: false,
-              actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TextButton(
-              onPressed:
-                  _passwordController.text.isNotEmpty && !appProvider.isLoading
-                      ? () {
-                          _reAuthUser(appProvider);
-                        }
-                      : null,
-              child: const Text('Next'),
-            ))
-        ]
     );
   }
 

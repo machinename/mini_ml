@@ -29,9 +29,11 @@ class _ProjectDescriptionState extends State<ProjectDescription> {
       bool? isSave = await Dialogs.showConfirmDialog(
           context, 'Are you sure you want to update the project description?');
       if (isSave == true) {
+        appProvider.setIsLoading(true);
         project.description = _descriptionController.text.trim();
         await appProvider.updateProject(project);
         await appProvider.fetchProjects();
+        appProvider.setIsLoading(false);
         _back();
       }
     } catch (error) {
@@ -40,44 +42,66 @@ class _ProjectDescriptionState extends State<ProjectDescription> {
   }
 
   _buildBody(AppProvider appProvider) {
-    return ListView(
-      physics: const ClampingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: Constants.getPaddingHorizontal(context),
-        vertical: Constants.getPaddingVertical(context),
-      ),
-      children: [
-        Form(
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      ListView(
+        physics: const ClampingScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: Constants.getPaddingHorizontal(context),
+          vertical: Constants.getPaddingVertical(context),
+        ),
+        children: [
+          Form(
             key: _formKey,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                      maxLength:
-                          _descriptionController.text.length > 75 ? 100 : null,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 3,
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter Project Description',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (_isCreatePressed) {
-                          return Validators.descriptionValidator(
-                              value, "Project");
-                        }
-                        return null;
+            child: TextFormField(
+                maxLength: _descriptionController.text.length > 75 ? 100 : null,
+                keyboardType: TextInputType.multiline,
+                maxLines: 3,
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Enter Project Description',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (_isCreatePressed) {
+                    return Validators.descriptionValidator(value, "Project");
+                  }
+                  return null;
+                },
+                onChanged: (_) {
+                  setState(
+                    () {},
+                  );
+                }),
+          ),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
+            onPressed: _descriptionController.text.isNotEmpty
+                ? () {
+                    setState(
+                      () {
+                        _isCreatePressed = true;
                       },
-                      onChanged: (_) {
-                        setState(
-                          () {},
-                        );
-                      }),
-                  SizedBox(height: Constants.getPaddingVertical(context))
-                ]))
-      ],
-    );
+                    );
+                    if (_formKey.currentState != null &&
+                        _formKey.currentState!.validate()) {
+                      _handleUpdateProjectDescription(appProvider);
+                    }
+                  }
+                : null,
+            child: const Text("Update"),
+          ),
+        ],
+      )
+    ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
@@ -90,24 +114,6 @@ class _ProjectDescriptionState extends State<ProjectDescription> {
       ),
       title: const Text("Project Description"),
       centerTitle: false,
-      actions: [
-        TextButton(
-          onPressed: _descriptionController.text.isNotEmpty
-              ? () {
-                  setState(
-                    () {
-                      _isCreatePressed = true;
-                    },
-                  );
-                  if (_formKey.currentState != null &&
-                      _formKey.currentState!.validate()) {
-                    _handleUpdateProjectDescription(appProvider);
-                  }
-                }
-              : null,
-          child: const Text("Save"),
-        ),
-      ],
     );
   }
 

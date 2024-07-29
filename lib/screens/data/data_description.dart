@@ -72,31 +72,19 @@ class _DataDescriptionState extends State<DataDescription> {
                     return null;
                   },
                   decoration: const InputDecoration(
-                    labelText: 'Description',
+                    labelText: 'Enter Data Description',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (_) {
                     setState(() {});
-                  }))
-        ]);
-  }
-
-  _buildAppBar(AppProvider appProvider) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _back();
-        },
-      ),
-      title: const Text("Data Description"),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
+                  })),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
             onPressed: _descriptionController.text.isNotEmpty
                 ? () {
                     setState(
@@ -112,8 +100,42 @@ class _DataDescriptionState extends State<DataDescription> {
                 : null,
             child: const Text('Update'),
           ),
-        ),
-      ],
+        ]);
+  }
+
+  _buildAppBar(AppProvider appProvider) {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _back();
+        },
+      ),
+      title: const Text("Data Description"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 4,
+      //     ),
+      //     child: TextButton(
+      //       onPressed: _descriptionController.text.isNotEmpty
+      //           ? () {
+      //               setState(
+      //                 () {
+      //                   _isUpdatePressed = true;
+      //                 },
+      //               );
+      //               if (_formKey.currentState != null &&
+      //                   _formKey.currentState!.validate()) {
+      //                 _handleUpdateDataDescription(appProvider);
+      //               }
+      //             }
+      //           : null,
+      //       child: const Text('Update Description'),
+      //     ),
+      //   ),
+      // ],
     );
   }
 

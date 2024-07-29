@@ -157,31 +157,32 @@ class _ProjectCreateState extends State<ProjectCreate> {
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              _back();
-            }),
-        title: const Text("New Project"),
-        centerTitle: false,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TextButton(
-                  onPressed:
-                      _nameController.text.isNotEmpty && !appProvider.isLoading
-                          ? () {
-                              setState(() {
-                                _isCreatePressed = true;
-                              });
-                              if (_formKey.currentState != null &&
-                                  _formKey.currentState!.validate()) {
-                                _handleProjectCreate(appProvider);
-                              }
-                            }
-                          : null,
-                  child: const Text('Create')))
-        ]);
+      leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            _back();
+          }),
+      title: const Text("New Project"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //       padding: const EdgeInsets.symmetric(horizontal: 4),
+      //       child: TextButton(
+      //           onPressed:
+      //               _nameController.text.isNotEmpty && !appProvider.isLoading
+      //                   ? () {
+      //                       setState(() {
+      //                         _isCreatePressed = true;
+      //                       });
+      //                       if (_formKey.currentState != null &&
+      //                           _formKey.currentState!.validate()) {
+      //                         _handleProjectCreate(appProvider);
+      //                       }
+      //                     }
+      //                   : null,
+      //           child: const Text('Create')))
+      // ]
+    );
   }
 
   @override

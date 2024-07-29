@@ -141,6 +141,7 @@ class _SignOnState extends State<SignOn> {
                     children: [
                       TextFormField(
                         controller: _emailController,
+                        enabled: !appProvider.isLoading,
                         validator: (value) {
                           if (_isSignInUpPressed) {
                             return Validators.emailValidator(value);
@@ -165,6 +166,7 @@ class _SignOnState extends State<SignOn> {
                       TextFormField(
                           obscureText: _isPasswordVisible ? false : true,
                           controller: _passwordController,
+                          enabled: !appProvider.isLoading,
                           validator: !_isSignIn
                               ? (value) {
                                   if (_isSignInUpPressed) {
@@ -199,6 +201,7 @@ class _SignOnState extends State<SignOn> {
                           SizedBox(
                               height: Constants.getPaddingVertical(context)),
                           TextFormField(
+                              enabled: !appProvider.isLoading,
                               obscureText: _isPasswordVisible ? false : true,
                               controller: _passwordConfirmController,
                               decoration: const InputDecoration(
@@ -262,8 +265,14 @@ class _SignOnState extends State<SignOn> {
             SizedBox(height: Constants.getPaddingVertical(context) - 2),
             _isSignIn
                 ? ElevatedButton(
+                    style: ButtonStyle(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                          const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero)),
+                    ),
                     onPressed: _emailController.text.isNotEmpty &&
-                            _passwordController.text.isNotEmpty
+                            _passwordController.text.isNotEmpty &&
+                            !appProvider.isLoading
                         ? () {
                             setState(
                               () {
@@ -279,9 +288,15 @@ class _SignOnState extends State<SignOn> {
                     child: const Text('Log In'),
                   )
                 : ElevatedButton(
+                    style: ButtonStyle(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                          const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero)),
+                    ),
                     onPressed: _emailController.text.isNotEmpty &&
                             _passwordController.text.isNotEmpty &&
-                            _passwordConfirmController.text.isNotEmpty
+                            _passwordConfirmController.text.isNotEmpty &&
+                            !appProvider.isLoading
                         ? () {
                             setState(
                               () {
@@ -324,9 +339,7 @@ class _SignOnState extends State<SignOn> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
-      return Scaffold(
-          appBar: _buildAppBar(),
-          body: _buildBody(appProvider));
+      return Scaffold(appBar: _buildAppBar(), body: _buildBody(appProvider));
     });
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/login/re_Auth.dart';
+import 'package:mini_ml/screens/login/re_auth.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:provider/provider.dart';
 

@@ -51,9 +51,10 @@ class AppProvider extends ChangeNotifier {
       _projectProvider = Project();
       _prefs = await SharedPreferences.getInstance();
       await _prefs.setString('recent_project', '');
-      notifyListeners();
     } catch (error) {
       throw Exception(error.toString());
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -71,12 +72,27 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  // Future<void> fetchUserAppData() {
+  //   try {
+  //     if (_auth.currentUser != null) {
+  //       await fetchProjects();
+  //       await fetchPreferences();
+  //       await fetchUserStorage();
+  //     } else {
+  //       print('User Not Logged In');
+  //     }
+  //   } catch (error) {
+  //     throw Exception(error.toString());
+  //   }
+  // }
+
   Future<void> fetchUserStorage() async {
     try {
       if (_auth.currentUser != null) {
         num? storage = await APIServices().fetchUserStorage(_auth.currentUser!);
         if (storage != null) {
-          _userStorageInMegaBytes = double.parse(storage.toString()).toStringAsFixed(2);
+          _userStorageInMegaBytes =
+              double.parse(storage.toString()).toStringAsFixed(2);
           print(_userStorageInMegaBytes);
         } else {
           throw ('Error fetching user storage');
@@ -506,6 +522,10 @@ class AppProvider extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
+  }
+
+  Future<void> refreshUserToken() async {
+    _auth.userChanges();
   }
 
   Future<void> resetPassword() async {

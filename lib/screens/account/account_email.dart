@@ -41,18 +41,15 @@ class _AccountEmailState extends State<AccountEmail> {
     );
   }
 
-
   void _updateEmail(AppProvider appProvider) async {
     try {
       var currentUser = appProvider.auth.currentUser;
-    
-     
+
       if (currentUser != null) {
-          appProvider.setIsLoading(true);
-          await currentUser.verifyBeforeUpdateEmail(_emailController.text);
-          appProvider.setIsLoading(false);
-          _showVerifyEmailDialog(appProvider);
-        
+        appProvider.setIsLoading(true);
+        await currentUser.verifyBeforeUpdateEmail(_emailController.text);
+        appProvider.setIsLoading(false);
+        _showVerifyEmailDialog(appProvider);
       }
     } catch (error) {
       appProvider.setIsLoading(false);
@@ -81,62 +78,67 @@ class _AccountEmailState extends State<AccountEmail> {
   }
 
   _buildBody(AppProvider appProvider) {
-    return 
-     Stack(
-      children: [
-        if (appProvider.isLoading)
-          const Center(
-            child: CircularProgressIndicator.adaptive(),
-          ),Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: Constants.getPaddingHorizontal(context),
-            vertical: Constants.getPaddingVertical(context)),
-        child: ListView(
-          physics: const ClampingScrollPhysics(),
-          children: [
-            Form(
-              key: _formKey,
-              
-              child: TextFormField(
-                enabled: !appProvider.isLoading,
-                controller: _emailController,
-                keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (_isSavePressed) {
-                    return Validators.emailValidator(value);
-                  }
-                  return null;
-                },
-                onChanged: (_) {
-                  setState(
-                    () {},
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: Constants.getPaddingVertical(context) - 4),
-            ElevatedButton(
-              onPressed: _emailController.text.isNotEmpty && !appProvider.isLoading
-                  ? () {
-                      setState(
-                        () {
-                          _isSavePressed = true;
-                        },
-                      );
-                      if (_formKey.currentState != null &&
-                          _formKey.currentState!.validate()) {
-                        _updateEmail(appProvider);
-                      }
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: Constants.getPaddingHorizontal(context),
+              vertical: Constants.getPaddingVertical(context)),
+          child: ListView(
+            physics: const ClampingScrollPhysics(),
+            children: [
+              Form(
+                key: _formKey,
+                child: TextFormField(
+                  enabled: !appProvider.isLoading,
+                  controller: _emailController,
+                  keyboardType: TextInputType.multiline,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (_isSavePressed) {
+                      return Validators.emailValidator(value);
                     }
-                  : null,
-              child: const Text('Update Email'),
-            ),
-          ],
-        ))]);
+                    return null;
+                  },
+                  onChanged: (_) {
+                    setState(
+                      () {},
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: Constants.getPaddingVertical(context) - 4),
+              ElevatedButton(
+                style: ButtonStyle(
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero)),
+                ),
+                onPressed:
+                    _emailController.text.isNotEmpty && !appProvider.isLoading
+                        ? () {
+                            setState(
+                              () {
+                                _isSavePressed = true;
+                              },
+                            );
+                            if (_formKey.currentState != null &&
+                                _formKey.currentState!.validate()) {
+                              _updateEmail(appProvider);
+                            }
+                          }
+                        : null,
+                child: const Text('Update'),
+              ),
+            ],
+          ))
+    ]);
   }
 
   @override

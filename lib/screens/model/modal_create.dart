@@ -280,7 +280,36 @@ class _ModalCreateState extends State<ModalCreate> {
                 setState(() {
                   _modelType = ModelType.timeSeriesForecasting;
                 });
-              })
+              }),
+          Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: Constants.getPaddingHorizontal(context),
+              ),
+              child: ElevatedButton(
+                onPressed: _formKey.currentState != null &&
+                        _formKey.currentState!.validate() &&
+                        _nameController.text.isNotEmpty &&
+                        _dataId.isNotEmpty &&
+                        _modelType != null
+                    ? () {
+                        setState(
+                          () {
+                            _isCreatePressed = true;
+                          },
+                        );
+                        if (_formKey.currentState != null &&
+                            _formKey.currentState!.validate()) {
+                          _handleNext(appProvider);
+                        }
+                      }
+                    : null,
+                style: ButtonStyle(
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero)),
+                ),
+                child: const Text('Next'),
+              ))
         ]);
   }
 
@@ -294,30 +323,31 @@ class _ModalCreateState extends State<ModalCreate> {
         ),
         title: const Text("New Model"),
         centerTitle: false,
-        actions: [
+        actions: const [
           Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: TextButton(
-                  onPressed: _formKey.currentState != null &&
-                          _formKey.currentState!.validate() &&
-                          _nameController.text.isNotEmpty &&
-                          _dataId.isNotEmpty &&
-                          _modelType != null
-                      ? () {
-                          setState(
-                            () {
-                              _isCreatePressed = true;
-                            },
-                          );
-                          if (_formKey.currentState != null &&
-                              _formKey.currentState!.validate()) {
-                            _handleNext(appProvider);
-                          }
-                        }
-                      : null,
-                  child: const Text('Next')))
+            padding: EdgeInsets.symmetric(
+              horizontal: 4,
+            ),
+            // child: TextButton(
+            //     onPressed: _formKey.currentState != null &&
+            //             _formKey.currentState!.validate() &&
+            //             _nameController.text.isNotEmpty &&
+            //             _dataId.isNotEmpty &&
+            //             _modelType != null
+            //         ? () {
+            //             setState(
+            //               () {
+            //                 _isCreatePressed = true;
+            //               },
+            //             );
+            //             if (_formKey.currentState != null &&
+            //                 _formKey.currentState!.validate()) {
+            //               _handleNext(appProvider);
+            //             }
+            //           }
+            //         : null,
+            //     child: const Text('Next'))
+          )
         ]);
   }
 

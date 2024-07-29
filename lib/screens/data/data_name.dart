@@ -92,31 +92,19 @@ class _DataNameState extends State<DataName> {
                     return null;
                   },
                   decoration: const InputDecoration(
-                    labelText: 'Name',
+                    labelText: 'Enter Data Name',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (_) {
                     setState(() {});
-                  }))
-        ]);
-  }
-
-  _buildAppBar(AppProvider appProvider) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _back();
-        },
-      ),
-      title: const Text("Data Name"),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
+                  })),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
             onPressed: _nameController.text.isNotEmpty
                 ? () {
                     setState(
@@ -132,8 +120,42 @@ class _DataNameState extends State<DataName> {
                 : null,
             child: const Text('Update'),
           ),
-        ),
-      ],
+        ]);
+  }
+
+  _buildAppBar(AppProvider appProvider) {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _back();
+        },
+      ),
+      title: const Text("Data Name"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 4,
+      //     ),
+      //     child: TextButton(
+      //       onPressed: _nameController.text.isNotEmpty
+      //           ? () {
+      //               setState(
+      //                 () {
+      //                   _isUpdatePressed = true;
+      //                 },
+      //               );
+      //               if (_formKey.currentState != null &&
+      //                   _formKey.currentState!.validate()) {
+      //                 _showUpdateDataNameDialog(appProvider);
+      //               }
+      //             }
+      //           : null,
+      //       child: const Text('Update Name'),
+      //     ),
+      //   ),
+      // ],
     );
   }
 

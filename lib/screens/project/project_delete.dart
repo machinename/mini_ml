@@ -77,6 +77,22 @@ class _ProjectDeleteState extends State<ProjectDelete> {
                         onChanged: (_) {
                           setState(() {});
                         })),
+                SizedBox(height: Constants.getPaddingVertical(context) - 4),
+                ElevatedButton(
+                  onPressed: _deleteController.text ==
+                              appProvider.projectProvider.name &&
+                          !appProvider.isLoading
+                      ? () {
+                          _deleteProject(appProvider);
+                        }
+                      : null,
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero)),
+                  ),
+                  child: const Text('Delete'),
+                )
               ],
             )),
       ],
@@ -85,28 +101,29 @@ class _ProjectDeleteState extends State<ProjectDelete> {
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-        title: const Text('Delete Project'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_sharp),
-          onPressed: () {
-            _back();
-          },
-        ),
-        centerTitle: false,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TextButton(
-                onPressed: _deleteController.text ==
-                            appProvider.projectProvider.name &&
-                        !appProvider.isLoading
-                    ? () {
-                        _deleteProject(appProvider);
-                      }
-                    : null,
-                child: const Text('Delete'),
-              ))
-        ]);
+      title: const Text('Delete Project'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_sharp),
+        onPressed: () {
+          _back();
+        },
+      ),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //       padding: const EdgeInsets.symmetric(horizontal: 4),
+      //       child: TextButton(
+      //         onPressed: _deleteController.text ==
+      //                     appProvider.projectProvider.name &&
+      //                 !appProvider.isLoading
+      //             ? () {
+      //                 _deleteProject(appProvider);
+      //               }
+      //             : null,
+      //         child: const Text('Delete'),
+      //       ))
+      // ]
+    );
   }
 
   @override

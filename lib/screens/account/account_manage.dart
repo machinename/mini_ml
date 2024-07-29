@@ -3,7 +3,7 @@ import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_data_and_privacy.dart';
 import 'package:mini_ml/screens/account/account_legal.dart';
 import 'package:mini_ml/screens/account/account_security.dart';
-import 'package:mini_ml/screens/login/re_Auth.dart';
+import 'package:mini_ml/screens/login/re_auth.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';

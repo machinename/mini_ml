@@ -3,22 +3,30 @@ import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/project/project_create.dart';
 import 'package:mini_ml/utils/constants.dart';
+import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class ProjectSearch extends StatefulWidget {
-  const ProjectSearch({super.key});
+class Projects extends StatefulWidget {
+  const Projects({super.key});
 
   @override
-  State<ProjectSearch> createState() => _ProjectSearchState();
+  State<Projects> createState() => _ProjectsState();
 }
 
-class _ProjectSearchState extends State<ProjectSearch> {
-  final TextEditingController _controller = TextEditingController();
+class _ProjectsState extends State<Projects> {
+  static final GlobalKey<RefreshIndicatorState> _projecrRefreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
   String selected = "";
 
   void _back() {
     Navigator.pop(context);
+  }
+
+  void _fetchProjects(AppProvider appProvider) async {
+    await appProvider.fetchProjects();
   }
 
   void _pushToCreateProject() {
@@ -46,7 +54,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
-            controller: _controller,
+            controller: _searchController,
             decoration: const InputDecoration(
                 hintText: 'Find',
                 prefixIcon: Icon(Icons.search),
@@ -72,14 +80,12 @@ class _ProjectSearchState extends State<ProjectSearch> {
                   itemBuilder: (context, index) {
                     final project = filteredItems[index];
                     return ListTile(
-                      leading: filteredItems[index].name ==
-                              appProvider.projectProvider.name
+                      leading: project.name == appProvider.projectProvider.name
                           ? const Icon(Icons.check)
                           : null,
-                      title: Text(filteredItems[index].name),
+                      title: Text(project.name),
                       onTap: () {
-                        if (appProvider.projectProvider.name !=
-                            filteredItems[index].name) {
+                        if (appProvider.projectProvider.name != project.name) {
                           _setProject(appProvider, project);
                         }
                       },
@@ -103,15 +109,37 @@ class _ProjectSearchState extends State<ProjectSearch> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
               ),
-              title: const Text('Search Projects'),
+              title: const Text('Projects'),
               centerTitle: false,
               actions: [
                 IconButton(
+                    icon: const Icon(Icons.refresh_sharp),
+                    onPressed: () => _fetchProjects(appProvider)),
+                IconButton(
                     icon: const Icon(Icons.add),
-                    onPressed: () => _pushToCreateProject()),
+                    onPressed: () {
+                      if (appProvider.auth.currentUser?.emailVerified ==
+                          false) {
+                        Dialogs.showMessageDialog(context, "Email Verification",
+                            "Please verify your email address to create a project!");
+                      } else {
+                        _pushToCreateProject();
+                      }
+                    }),
               ],
             ),
-            body: _buildBody(appProvider));
+            body: RefreshIndicator(
+                key: _projecrRefreshIndicatorKey,
+                strokeWidth: 3.0,
+                onRefresh: () async {
+                  if (appProvider.projectProvider.name.isEmpty) {
+                    await appProvider.fetchAppData();
+                  } else {
+                    print('Fetching projects');
+                    await appProvider.fetchProjects();
+                  }
+                },
+                child: _buildBody(appProvider)));
       },
     );
   }

@@ -94,7 +94,7 @@ class _DataCreateState extends State<DataCreate> {
       }
     } catch (error) {
       // throw ();
-    } 
+    }
   }
 
   void _showSnackBar(String string) {
@@ -110,7 +110,7 @@ class _DataCreateState extends State<DataCreate> {
       ListView(
           physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.symmetric(
-            vertical: Constants.getPaddingHorizontal(context),
+            vertical: Constants.getPaddingVertical(context),
           ),
           children: [
             Form(
@@ -228,7 +228,34 @@ class _DataCreateState extends State<DataCreate> {
                 subtitle: Text('File: $_dataSetPathShort'),
                 enabled: _dataType != null,
                 onTap: () => _showFilePicker(appProvider),
-                trailing: const Icon(Icons.file_upload))
+                trailing: const Icon(Icons.file_upload)),
+            Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Constants.getPaddingHorizontal(context),
+                ),
+                child: ElevatedButton(
+                  onPressed: _nameController.text.isNotEmpty &&
+                          _dataSetPath.isNotEmpty &&
+                          _dataType != null
+                      ? () {
+                          setState(
+                            () {
+                              _isCreatePressed = true;
+                            },
+                          );
+                          if (_formKey.currentState != null &&
+                              _formKey.currentState!.validate()) {
+                            _createData(appProvider);
+                          }
+                        }
+                      : null,
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero)),
+                  ),
+                  child: const Text('Create'),
+                ))
           ])
     ]);
   }
@@ -243,31 +270,31 @@ class _DataCreateState extends State<DataCreate> {
       ),
       title: const Text("New Data"),
       centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
-            onPressed: _nameController.text.isNotEmpty &&
-                    _dataSetPath.isNotEmpty &&
-                    _dataType != null
-                ? () {
-                    setState(
-                      () {
-                        _isCreatePressed = true;
-                      },
-                    );
-                    if (_formKey.currentState != null &&
-                        _formKey.currentState!.validate()) {
-                      _createData(appProvider);
-                    }
-                  }
-                : null,
-            child: const Text('Create'),
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 4,
+      //     ),
+      //     child: TextButton(
+      //       onPressed: _nameController.text.isNotEmpty &&
+      //               _dataSetPath.isNotEmpty &&
+      //               _dataType != null
+      //           ? () {
+      //               setState(
+      //                 () {
+      //                   _isCreatePressed = true;
+      //                 },
+      //               );
+      //               if (_formKey.currentState != null &&
+      //                   _formKey.currentState!.validate()) {
+      //                 _createData(appProvider);
+      //               }
+      //             }
+      //           : null,
+      //       child: const Text('Create'),
+      //     ),
+      //   ),
+      // ],
     );
   }
 

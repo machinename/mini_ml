@@ -34,10 +34,11 @@ class MiniML extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AppProvider()..fetchAppData(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'mini ML',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-              seedColor:const Color.fromARGB(255, 0, 0, 0)),
+              seedColor: const Color.fromARGB(255, 0, 0, 0)),
           useMaterial3: true,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -59,7 +60,7 @@ class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appProvider = Provider.of<AppProvider>(context);
-  
+
     return appProvider.auth.currentUser != null ? const Home() : const Login();
   }
 }

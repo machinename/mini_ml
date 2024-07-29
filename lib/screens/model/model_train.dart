@@ -84,7 +84,8 @@ class _TrainModelState extends State<TrainModel> {
       Padding(
           padding: EdgeInsets.symmetric(
               horizontal: Constants.getPaddingHorizontal(context)),
-          child: Column(children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             DropdownMenu<String>(
                 label: const Text('Select Label'),
                 width: MediaQuery.of(context).size.width * .94,
@@ -105,39 +106,57 @@ class _TrainModelState extends State<TrainModel> {
                               value: entry.key,
                               label: "${entry.key}: ${entry.value.toString()}",
                             ))
-                    .toList())
+                    .toList()),
+            SizedBox(height: Constants.getPaddingVertical(context) - 4),
+            ElevatedButton(
+              onPressed: _label.isNotEmpty
+                  ? () {
+                      _handleModel(appProvider);
+                    }
+                  : null,
+              style: ButtonStyle(
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero)),
+              ),
+              child: widget.mode == 'create'
+                  ? const Text('Create')
+                  : const Text('Train'),
+            )
           ]))
     ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed:  !appProvider.isLoading ? () {
-              _back();
-            } : null
-            ),
-        title: widget.mode == 'create'
-            ? const Text('Create Model')
-            : const Text('Train Model'),
-        centerTitle: false,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: TextButton(
-                onPressed: _label.isNotEmpty
-                    ? () {
-                        _handleModel(appProvider);
-                      }
-                    : null,
-                child: widget.mode == 'create'
-                    ? const Text('Create')
-                    : const Text('Train'),
-              ))
-        ]);
+      leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: !appProvider.isLoading
+              ? () {
+                  _back();
+                }
+              : null),
+      title: widget.mode == 'create'
+          ? const Text('Create Model')
+          : const Text('Train Model'),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //       padding: const EdgeInsets.symmetric(
+      //         horizontal: 4,
+      //       ),
+      //       child: TextButton(
+      //         onPressed: _label.isNotEmpty
+      //             ? () {
+      //                 _handleModel(appProvider);
+      //               }
+      //             : null,
+      //         child: widget.mode == 'create'
+      //             ? const Text('Create')
+      //             : const Text('Train'),
+      //       ))
+      // ]
+    );
   }
 
   @override

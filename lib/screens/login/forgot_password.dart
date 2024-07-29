@@ -93,6 +93,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
           SizedBox(height: Constants.getPaddingVertical(context) - 4),
           ElevatedButton(
+              style: ButtonStyle(
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero)),
+              ),
               onPressed: _emailController.text.isNotEmpty
                   ? () {
                       setState(() {

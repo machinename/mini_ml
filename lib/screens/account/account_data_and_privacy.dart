@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/login/re_Auth.dart';
+import 'package:mini_ml/screens/login/re_auth.dart';
 import 'package:provider/provider.dart';
 
 class AccountDataAndPrivacy extends StatefulWidget {
@@ -38,30 +38,21 @@ class _AccountDataAndPrivacyState extends State<AccountDataAndPrivacy> {
   }
 
   _buildBody(AppProvider appProvider) {
-    return ListView(
-      physics: const ClampingScrollPhysics(),
-      children: [
-        ListTile(
+    return ListView(physics: const ClampingScrollPhysics(), children: [
+      ListTile(
           title: const Text("Delete Your Account"),
           subtitle: const Text("Delete your entire account and data"),
           onTap: () {
             _pushToReAuth('delete');
           },
-          trailing: const Icon(Icons.chevron_right)
-        )
-      ]
-    );
+          trailing: const Icon(Icons.chevron_right))
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, appProvider, _) {
-        return Scaffold(
-          appBar: _buildAppBar(),
-          body: _buildBody(appProvider)
-        );
-      }
-    );
+    return Consumer<AppProvider>(builder: (context, appProvider, _) {
+      return Scaffold(appBar: _buildAppBar(), body: _buildBody(appProvider));
+    });
   }
 }

@@ -32,63 +32,107 @@ class _ProjectNameState extends State<ProjectName> {
       ),
       title: const Text("Project Name"),
       centerTitle: false,
-      actions: [
-        TextButton(
-          onPressed: _nameController.text.isNotEmpty
-              ? () {
-                  setState(
-                    () {
-                      _isSavePressed = true;
-                    },
-                  );
-                  if (_formKey.currentState != null &&
-                      _formKey.currentState!.validate()) {
-                    _handleUpdateProjectName(appProvider);
-                  }
-                }
-              : null,
-          child: const Text('Save'),
-        ),
-      ],
+      // actions: [
+      //   TextButton(
+      //     onPressed: _nameController.text.isNotEmpty
+      //         ? () {
+      //             setState(
+      //               () {
+      //                 _isSavePressed = true;
+      //               },
+      //             );
+      //             if (_formKey.currentState != null &&
+      //                 _formKey.currentState!.validate()) {
+      //               _handleUpdateProjectName(appProvider);
+      //             }
+      //           }
+      //         : null,
+      //     child: const Text('Save'),
+      //   ),
+      // ],
     );
   }
 
   _buildBody(AppProvider appProvider) {
-    return ListView(
-      physics: const ClampingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: Constants.getPaddingHorizontal(context),
-        vertical: Constants.getPaddingVertical(context),
-      ),
-      children: [
-        Form(
+    return Stack(children: [
+      if (appProvider.isLoading)
+        const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      ListView(
+        physics: const ClampingScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: Constants.getPaddingHorizontal(context),
+          vertical: Constants.getPaddingVertical(context),
+        ),
+        children: [
+          Form(
             key: _formKey,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    maxLength: _nameController.text.length > 35 ? 40 : null,
-                    controller: _nameController,
-                    validator: (value) {
-                      if (_isSavePressed) {
-                        return Validators.nameValidator(value, 'Project');
-                      }
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Enter Project Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) {
-                      setState(
-                        () {},
-                      );
-                    },
-                  ),
-                  SizedBox(height: Constants.getPaddingVertical(context))
-                ]))
-      ],
-    );
+            child: TextFormField(
+              enabled: !appProvider.isLoading,
+              maxLength: _nameController.text.length > 35 ? 40 : null,
+              controller: _nameController,
+              validator: (value) {
+                if (_isSavePressed) {
+                  return Validators.nameValidator(value, 'Project');
+                }
+                return null;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Enter Project Name',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (_) {
+                setState(
+                  () {},
+                );
+              },
+            ),
+          ),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
+            onPressed: _nameController.text.isNotEmpty
+                ? () {
+                    setState(
+                      () {
+                        _isSavePressed = true;
+                      },
+                    );
+                    if (_formKey.currentState != null &&
+                        _formKey.currentState!.validate()) {
+                      _handleUpdateProjectName(appProvider);
+                    }
+                  }
+                : null,
+            child: const Text('Update'),
+          ),
+        ],
+      )
+    ]);
+  }
+
+  Future<void> _handleUpdateProjectName(AppProvider appProvider) async {
+    try {
+      Project project = appProvider.projectProvider;
+      bool? isSave = await Dialogs.showConfirmDialog(
+          context, 'Are you sure you want to update the project name?');
+      if (isSave == true) {
+        appProvider.setIsLoading(true);
+        project.name = _nameController.text.trim();
+        await appProvider.updateProject(project);
+        await appProvider.fetchProjects();
+        appProvider.setIsLoading(false);
+        _back();
+      }
+    } catch (error) {
+      appProvider.setIsLoading(false);
+      throw Exception(error.toString());
+    }
   }
 
   @override
@@ -99,21 +143,5 @@ class _ProjectNameState extends State<ProjectName> {
         body: _buildBody(appProvider),
       );
     });
-  }
-
-  Future<void> _handleUpdateProjectName(AppProvider appProvider) async {
-    try {
-      Project project = appProvider.projectProvider;
-      bool? isSave = await Dialogs.showConfirmDialog(
-          context, 'Are you sure you want to update the project name?');
-      if (isSave == true) {
-        project.name = _nameController.text.trim();
-        await appProvider.updateProject(project);
-        await appProvider.fetchProjects();
-        _back();
-      }
-    } catch (error) {
-      throw Exception(error.toString());
-    }
   }
 }
