@@ -53,16 +53,16 @@ class ModelScreenState extends State<ModelScreen> {
                 itemBuilder: (context, index) {
                   final model = appProvider.projectProvider.models[index];
                   return ListTile(
-                    leading: _modelTypeIcon(model),
-                    style: ListTileStyle.list,
-                    title: Text(model.name),
-                    subtitle: Text('Created at - ${model.createdAt}'),
-                    onTap: () {
-                      appProvider.projectProvider.currentModel = model;
-                      _pushToManageModel(appProvider);
-                    },
-                  );
-                })),
+                      leading: _modelTypeIcon(model),
+                      style: ListTileStyle.list,
+                      title: Text(model.name),
+                      subtitle: Text('Created at - ${model.createdAt}'),
+                      onTap: () {
+                        appProvider.projectProvider.currentModel = model;
+                        _pushToManageModel(appProvider);
+                      },
+                      trailing: const Icon(Icons.chevron_right_sharp));
+                }))
       ],
     );
   }

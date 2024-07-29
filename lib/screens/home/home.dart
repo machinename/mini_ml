@@ -62,26 +62,24 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         // titleSpacing: 2,
-        // leading: const Icon(Icons.cloud_sharp),
+        leading: const Icon(Icons.cloud_sharp),
         title: ListTile(
-            title: const Text('Project',
-                style: TextStyle(fontWeight: FontWeight.w300)),
-            subtitle: Row(children: [
-              Text(appProvider.projectProvider.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              // const Icon(Icons.arrow_drop_down)
-            ]),
-            // trailing: appProvider.projectProvider.name.isNotEmpty
-            //     ? const Icon(Icons.chevron_right_sharp)
-            //     : null,
-            onTap: appProvider.projectProvider.name.isNotEmpty
-                ? () => _pushToManageProject()
-                : null),
+          title: const Text('Project',
+              style: TextStyle(fontWeight: FontWeight.w300)),
+          subtitle: Row(children: [
+            Text(appProvider.projectProvider.name,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const Icon(Icons.arrow_drop_down)
+          ]),
+          onTap: () => _pushToSearchProjects(),
+        ),
         centerTitle: false,
         actions: [
           IconButton(
-              icon: const Icon(Icons.search_sharp),
-              onPressed: () => _pushToSearchProjects()),
+              icon: const Icon(Icons.chevron_right_sharp),
+              onPressed: appProvider.projectProvider.name.isNotEmpty
+                  ? () => _pushToManageProject()
+                  : null),
           IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
