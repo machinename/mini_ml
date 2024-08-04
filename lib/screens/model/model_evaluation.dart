@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
+import 'package:mini_ml/screens/model/model_metrics.dart';
+import 'package:mini_ml/utils/helpers.dart';
 import 'package:provider/provider.dart';
 
 class ModelEvaluation extends StatefulWidget {
@@ -10,6 +12,10 @@ class ModelEvaluation extends StatefulWidget {
 }
 
 class ModelEvaluationState extends State<ModelEvaluation> {
+  void _pushToMetric(String metric, String value) {
+    Helpers.pushTo(context, Metrics(metric: metric, value: value));
+  }
+
   void _back() {
     Navigator.pop(context);
   }
@@ -19,19 +25,22 @@ class ModelEvaluationState extends State<ModelEvaluation> {
         appProvider.projectProvider.currentModel?.evaluationMetrics.entries;
     if (metrics == null) {
       return const Center(child: Text("No Evaluation Metrics Found"));
-    }
-
-    ListView.builder(
-        itemCount: metrics.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-              leading: const Icon(Icons.model_training_sharp),
+    } else {
+      return ListView.builder(
+          physics: const ClampingScrollPhysics(),
+          itemCount: metrics.length,
+          itemBuilder: (context, index) {
+            final String metric = metrics.elementAt(index).key;
+            final String value = metrics.elementAt(index).value.toString();
+            return ListTile(
               style: ListTileStyle.list,
-              title: Text(metrics.elementAt(index).key),
-              subtitle: Text(
-                metrics.elementAt(index).value.toString(),
-              ));
-        });
+              title: Text(metric.toUpperCase()),
+              subtitle: Text(value),
+              onTap: () => _pushToMetric(metric, value),
+              trailing: const Icon(Icons.chevron_right),
+            );
+          });
+    }
   }
 
   _buildAppBar(AppProvider appProvider) {

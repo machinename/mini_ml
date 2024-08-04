@@ -32,8 +32,9 @@ class _ProjectDeleteState extends State<ProjectDelete> {
       await appProvider.fetchProjects();
       appProvider.setIsLoading(false);
       _exit();
-      _showSnackBar("Project Successfully Deleted");
-      appProvider.setProjectProviderEmpty();
+      _showSnackBar(
+          "Project '${project.name}' and of if resources have been deleted.");
+      appProvider.clearProjectProvider();
     } catch (error) {
       appProvider.setIsLoading(false);
       _showSnackBar('Error Occured');

@@ -27,7 +27,7 @@ class _ModelDescriptionState extends State<ModelDescription> {
       Data? data = appProvider.projectProvider.currentData;
 
       if (data == null) {
-        _showSnackBar("Data not found");
+        _showSnackBar("Model not found", color: Colors.red);
         return;
       }
       bool? isSave = await Dialogs.showConfirmDialog(
@@ -41,12 +41,13 @@ class _ModelDescriptionState extends State<ModelDescription> {
         _back();
       }
     } catch (error) {
-      _showSnackBar("Error updating model description: ${error.toString()}");
+      _showSnackBar("Error updating model description: ${error.toString()}",
+          color: Colors.red);
     }
   }
 
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
+  void _showSnackBar(String string, {Color? color}) {
+    Dialogs.showSnackBar(context, string, color: color);
   }
 
   Widget _buildBody(AppProvider appProvider) {
@@ -77,26 +78,14 @@ class _ModelDescriptionState extends State<ModelDescription> {
                   ),
                   onChanged: (_) {
                     setState(() {});
-                  }))
-        ]);
-  }
-
-  _buildAppBar(AppProvider appProvider) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _back();
-        },
-      ),
-      title: const Text("Model Description"),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
+                  })),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
             onPressed: _descriptionController.text.isNotEmpty
                 ? () {
                     setState(
@@ -112,8 +101,42 @@ class _ModelDescriptionState extends State<ModelDescription> {
                 : null,
             child: const Text('Update'),
           ),
-        ),
-      ],
+        ]);
+  }
+
+  _buildAppBar(AppProvider appProvider) {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _back();
+        },
+      ),
+      title: const Text("Model Description"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 4,
+      //     ),
+      //     child: TextButton(
+      //       onPressed: _descriptionController.text.isNotEmpty
+      //           ? () {
+      //               setState(
+      //                 () {
+      //                   _isUpdatePressed = true;
+      //                 },
+      //               );
+      //               if (_formKey.currentState != null &&
+      //                   _formKey.currentState!.validate()) {
+      //                 _handleUpdateModelDescription(appProvider);
+      //               }
+      //             }
+      //           : null,
+      //       child: const Text('Update'),
+      //     ),
+      //   ),
+      // ],
     );
   }
 

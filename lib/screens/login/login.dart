@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sign_on.dart';
+import 'login_sign_on.dart';
 
 class Login extends StatelessWidget {
   const Login({
@@ -10,7 +10,7 @@ class Login extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SignOn(
+        builder: (context) => LoginSignOn(
           mode: mode,
         ),
       ),
@@ -21,7 +21,7 @@ class Login extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-       const Text('mini ML', textAlign: TextAlign.center ),
+        const Text('mini ML', textAlign: TextAlign.center),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

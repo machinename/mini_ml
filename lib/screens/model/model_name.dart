@@ -54,7 +54,7 @@ class _ModelNameState extends State<ModelName> {
       Model? model = appProvider.projectProvider.currentModel;
 
       if (model == null) {
-        _showSnackBar("Data not found");
+        _showSnackBar("Model not found");
         return;
       }
 
@@ -97,26 +97,14 @@ class _ModelNameState extends State<ModelName> {
                   ),
                   onChanged: (_) {
                     setState(() {});
-                  }))
-        ]);
-  }
-
-  _buildAppBar(AppProvider appProvider) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _back();
-        },
-      ),
-      title: const Text("Model Name"),
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: TextButton(
+                  })),
+          SizedBox(height: Constants.getPaddingVertical(context) - 4),
+          ElevatedButton(
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero)),
+            ),
             onPressed: _nameController.text.isNotEmpty
                 ? () {
                     setState(
@@ -132,8 +120,42 @@ class _ModelNameState extends State<ModelName> {
                 : null,
             child: const Text('Update'),
           ),
-        ),
-      ],
+        ]);
+  }
+
+  _buildAppBar(AppProvider appProvider) {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _back();
+        },
+      ),
+      title: const Text("Model Name"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 4,
+      //     ),
+      //     child: TextButton(
+      //       onPressed: _nameController.text.isNotEmpty
+      //           ? () {
+      //               setState(
+      //                 () {
+      //                   _isUpdatePressed = true;
+      //                 },
+      //               );
+      //               if (_formKey.currentState != null &&
+      //                   _formKey.currentState!.validate()) {
+      //                 _showUpdateModelNameDialog(appProvider);
+      //               }
+      //             }
+      //           : null,
+      //       child: const Text('Update'),
+      //     ),
+      //   ),
+      // ],
     );
   }
 

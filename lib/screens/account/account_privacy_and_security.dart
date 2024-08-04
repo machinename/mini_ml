@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/login/re_auth.dart';
+import 'package:mini_ml/screens/miscellaneous/re_auth.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:provider/provider.dart';
 
-class AccountSecurity extends StatefulWidget {
-  const AccountSecurity({
+class AccountPrivacyAndSecurity extends StatefulWidget {
+  const AccountPrivacyAndSecurity({
     super.key,
   });
 
   @override
-  State<AccountSecurity> createState() => _AccountSecurityState();
+  State<AccountPrivacyAndSecurity> createState() =>
+      _AccountPrivacyAndSecurityState();
 }
 
-class _AccountSecurityState extends State<AccountSecurity> {
-  final bool _showBack = false;
-
+class _AccountPrivacyAndSecurityState extends State<AccountPrivacyAndSecurity> {
   void _back() {
     Navigator.pop(context);
   }
@@ -44,13 +43,13 @@ class _AccountSecurityState extends State<AccountSecurity> {
           onTap: () => _pushToReAuth('password'),
           trailing: const Icon(Icons.chevron_right),
         ),
-        if (_showBack)
-          TextButton(
-            onPressed: () {
-              _back();
+        ListTile(
+            title: const Text("Delete Your Account"),
+            subtitle: const Text("Delete your entire account and data"),
+            onTap: () {
+              _pushToReAuth('delete');
             },
-            child: const Text('Back'),
-          ),
+            trailing: const Icon(Icons.chevron_right)),
       ],
     );
   }

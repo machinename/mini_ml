@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/utils/constants.dart';
-import 'package:mini_ml/utils/helpers.dart';
 
-class Verify extends StatelessWidget {
-  const Verify({super.key});
+class LoginVerify extends StatelessWidget {
+  const LoginVerify({super.key});
 
   _exit(BuildContext context) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -29,7 +28,7 @@ class Verify extends StatelessWidget {
                             borderRadius: BorderRadius.zero)),
                   ),
                   onPressed: () => _exit(context),
-                  child: const Text('Exit'))
+                  child: const Text('Continue'))
             ]));
   }
 
@@ -40,7 +39,7 @@ class Verify extends StatelessWidget {
             onPressed: () {
               _exit(context);
             }),
-        title: const Text('Verify Email'),
+        title: const Text('LoginVerify Email'),
         automaticallyImplyLeading: false,
         centerTitle: false);
   }

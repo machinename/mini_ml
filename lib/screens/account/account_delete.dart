@@ -27,17 +27,10 @@ class _AccountDeleteState extends State<AccountDelete> {
   void _deleteAccount(AppProvider appProvider) async {
     try {
       appProvider.setIsLoading(true);
-      // // await appProvider.deleteAccount();
-      //  appProvider.setIsLoading(false);
-      await Future.delayed(const Duration(seconds: 2), () {
-        appProvider.setIsLoading(false);
-        _exit();
-        _showSnackBar("Account deleted successfully.");
-      });
-
-      // appProvider.setIsLoading(false);
-      // _exit();
-      // _showSnackBar("Account deleted successfully.");
+      await appProvider.deleteAccount();
+      appProvider.setIsLoading(false);
+      _exit();
+      _showSnackBar("Account deleted successfully.");
     } catch (error) {
       _showSnackBar(error.toString());
       throw Exception(
@@ -64,7 +57,8 @@ class _AccountDeleteState extends State<AccountDelete> {
             child: ListView(
               physics: const ClampingScrollPhysics(),
               children: [
-                const Text('This action is irreversible. To confirm type, "delete-account" in the box below.',
+                const Text(
+                    'This action is irreversible. To confirm type, "delete-account" in the box below.',
                     textAlign: TextAlign.start),
                 SizedBox(height: Constants.getPaddingHorizontal(context)),
                 Form(

@@ -42,6 +42,10 @@ class Project {
     };
   }
 
+  num getTotalResources() {
+    return data.length + models.length;
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

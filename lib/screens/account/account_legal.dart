@@ -6,20 +6,19 @@ import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Legal extends StatefulWidget {
-  const Legal({super.key});
+class AccountLegal extends StatefulWidget {
+  const AccountLegal({super.key});
 
   @override
-  State<Legal> createState() => _LegalState();
+  State<AccountLegal> createState() => _AccountLegalState();
 }
 
-class _LegalState extends State<Legal> {
+class _AccountLegalState extends State<AccountLegal> {
   void _back() {
     Navigator.pop(context);
   }
 
-  
-void _pushToLicenses() {
+  void _pushToLicenses() {
     Helpers.pushTo(context, const AccountLicenses());
   }
 
@@ -27,7 +26,7 @@ void _pushToLicenses() {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'machinename.dev/terms_of_service',
+        path: 'machinename.dev/Mini ML - Terms of Service.pdf',
       );
 
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -45,7 +44,7 @@ void _pushToLicenses() {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'machinename.dev/privacy_policy',
+        path: 'machinename.dev/Mini ML - Privacy Policy.pdf',
       );
 
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -68,24 +67,6 @@ void _pushToLicenses() {
       physics: const ClampingScrollPhysics(),
       children: [
         // ),
-        ListTile(
-          leading: const Icon(Icons.description_sharp),
-          title: const Text("Terms of Service"),
-          onTap: () => _pushToTermsOfService(),
-          trailing: const Icon(Icons.chevron_right),
-        ),
-        ListTile(
-          leading: const Icon(Icons.privacy_tip_sharp), 
-          title: const Text("Privacy Policy"),
-          onTap: () => _pushToPrivacyPolicy(),
-          trailing: const Icon(Icons.chevron_right),
-        ),
-        ListTile(
-          leading: const Icon(Icons.library_books_sharp),
-          title: const Text("Licenses"),
-          onTap: () => _pushToLicenses(),
-          trailing: const Icon(Icons.chevron_right),
-        ),
       ],
     );
   }
@@ -98,7 +79,7 @@ void _pushToLicenses() {
           _back();
         },
       ),
-      title: const Text("Legal"),
+      title: const Text("Account Legal"),
       centerTitle: false,
     );
   }

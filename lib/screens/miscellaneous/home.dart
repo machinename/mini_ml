@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_manage.dart';
 import 'package:mini_ml/screens/data/data_create.dart';
-import 'package:mini_ml/screens/home/dashboard.dart';
+import 'package:mini_ml/screens/miscellaneous/dashboard.dart';
 import 'package:mini_ml/screens/data/data_screen.dart';
 import 'package:mini_ml/screens/model/model_screen.dart';
 import 'package:mini_ml/screens/model/modal_create.dart';
 import 'package:mini_ml/screens/project/project_create.dart';
 import 'package:mini_ml/screens/project/project_manage.dart';
-import 'package:mini_ml/screens/project/projects.dart';
+import 'package:mini_ml/screens/project/project_screen.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +21,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // bool _showGreenIcon = false;
+  // Timer? _blinkTimer;
+
   int _currentTabIndex = 0;
 
   final List<Widget> _pages = const [
@@ -28,6 +31,18 @@ class _HomeState extends State<Home> {
     ModelScreen(),
     DataScreen(),
   ];
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _startBlinking();
+  // }
+
+  // @override
+  // void dispose() {
+  //   _blinkTimer?.cancel();
+  //   super.dispose();
+  // }
 
   void _pushToDataCreate() {
     Helpers.pushTo(context, const DataCreate());
@@ -50,8 +65,16 @@ class _HomeState extends State<Home> {
   }
 
   void _pushToSearchProjects() {
-    Helpers.pushTo(context, const Projects());
+    Helpers.pushTo(context, const ProjectScreen());
   }
+
+  // void _startBlinking() {
+  //   _blinkTimer = Timer.periodic(const Duration(milliseconds: 1250), (timer) {
+  //     setState(() {
+  //       _showGreenIcon = !_showGreenIcon;
+  //     });
+  //   });
+  // }
 
   _buildBody() {
     return _pages[_currentTabIndex];
@@ -62,7 +85,7 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         // titleSpacing: 2,
-        leading: const Icon(Icons.cloud_sharp),
+        // leading: const Icon(Icons.cloud_sharp),
         title: ListTile(
           title: const Text('Project',
               style: TextStyle(fontWeight: FontWeight.w300)),
@@ -75,17 +98,24 @@ class _HomeState extends State<Home> {
         ),
         centerTitle: false,
         actions: [
+          if (appProvider.projectProvider.name.isNotEmpty)
+            IconButton(
+                icon: const Icon(Icons.chevron_right_sharp),
+                onPressed: () => _pushToManageProject()),
           IconButton(
-              icon: const Icon(Icons.chevron_right_sharp),
-              onPressed: appProvider.projectProvider.name.isNotEmpty
-                  ? () => _pushToManageProject()
-                  : null),
-          IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(
+                Icons.add_box_outlined,
+                // color: appProvider.projects.isEmpty
+                //     ? Colors.green
+                //     : null, // Conditionally set color
+              ),
               onPressed: () {
                 if (appProvider.auth.currentUser?.emailVerified == false) {
-                  Dialogs.showMessageDialog(context, "Email Verification",
-                      "Please verify your email address to create a project!");
+                  Dialogs.showMessageDialog(
+                    context,
+                    "Email Verification!",
+                    "Please verify your email address to create a project!",
+                  );
                 } else {
                   _pushToCreateProject();
                 }
@@ -106,11 +136,11 @@ class _HomeState extends State<Home> {
         selectedIndex: _currentTabIndex,
         destinations: const [
           NavigationDestination(
-              icon: Icon(Icons.dashboard_sharp), label: 'Dashboard'),
+              icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
           NavigationDestination(
-              icon: Icon(Icons.model_training_sharp), label: 'Models'),
+              icon: Icon(Icons.model_training_outlined), label: 'Models'),
           NavigationDestination(
-              icon: Icon(Icons.data_array_sharp), label: 'Data')
+              icon: Icon(Icons.data_array_outlined), label: 'Data')
         ]);
   }
 
@@ -126,18 +156,18 @@ class _HomeState extends State<Home> {
                   onPressed: () {
                     if (appProvider.auth.currentUser?.emailVerified == false &&
                         _currentTabIndex == 1) {
-                      Dialogs.showMessageDialog(context, "Email Verification",
+                      Dialogs.showMessageDialog(context, "Email Verification!",
                           "Please verify your email address to create a model resource!");
                     } else if (appProvider.auth.currentUser?.emailVerified ==
                             false &&
                         _currentTabIndex == 2) {
-                      Dialogs.showMessageDialog(context, "Email Verification",
+                      Dialogs.showMessageDialog(context, "Email Verification!",
                           "Please verify your email address to create a data resource!");
                     } else {
                       _handleActionButton(appProvider);
                     }
                   },
-                  child: const Icon(Icons.add)),
+                  child: const Icon(Icons.add_outlined)),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           bottomNavigationBar: _buildBottomNavigationBar());
     });

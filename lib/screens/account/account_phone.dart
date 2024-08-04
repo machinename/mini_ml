@@ -5,14 +5,14 @@ import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class AccountEmail extends StatefulWidget {
-  const AccountEmail({super.key});
+class AccountPhone extends StatefulWidget {
+  const AccountPhone({super.key});
 
   @override
-  State<AccountEmail> createState() => _AccountEmailState();
+  State<AccountPhone> createState() => _AccountPhoneState();
 }
 
-class _AccountEmailState extends State<AccountEmail> {
+class _AccountPhoneState extends State<AccountPhone> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   bool _isSavePressed = false;
@@ -41,7 +41,7 @@ class _AccountEmailState extends State<AccountEmail> {
     );
   }
 
-  void _updateEmail(AppProvider appProvider) async {
+  void _updatePhone(AppProvider appProvider) async {
     try {
       var currentUser = appProvider.auth.currentUser;
 
@@ -66,7 +66,7 @@ class _AccountEmailState extends State<AccountEmail> {
 
   _buildAppBar() {
     return AppBar(
-      title: const Text("Email"),
+      title: const Text("Phone"),
       centerTitle: false,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_sharp),
@@ -130,7 +130,7 @@ class _AccountEmailState extends State<AccountEmail> {
                             );
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
-                              _updateEmail(appProvider);
+                              _updatePhone(appProvider);
                             }
                           }
                         : null,

@@ -46,26 +46,27 @@ class _ProjectCreateState extends State<ProjectCreate> {
         return;
       }
 
-      bool projectExist = await appProvider.checkForExisitingProject(project);
+      bool projectExist = await appProvider.checkForExistingProject(project);
       if (projectExist) {
-        _showSnackBar("Project Already Exists");
+        _showSnackBar("Project already exists");
         return;
       } else {
         appProvider.setIsLoading(true);
         await APIServices().createProject(project, user);
         await appProvider.fetchProjects(projectName: project.name);
         appProvider.setIsLoading(false);
-        _showSnackBar("Project Created Successfully");
+        _showSnackBar("New project:  ${project.name} added to database.",
+            color: Colors.green);
         _exit();
       }
     } catch (error) {
       appProvider.setIsLoading(false);
-      _showSnackBar(error.toString());
+      _showSnackBar(error.toString(), color: Colors.red);
     }
   }
 
-  void _showSnackBar(String message) {
-    Dialogs.showSnackBar(context, message);
+  void _showSnackBar(String message, {Color? color}) {
+    Dialogs.showSnackBar(context, message, color: color);
   }
 
   void _showErrorDialog(String title, String message) {
@@ -92,7 +93,7 @@ class _ProjectCreateState extends State<ProjectCreate> {
                       TextFormField(
                           enabled: appProvider.isLoading == false,
                           maxLength:
-                              _nameController.text.length > 35 ? 40 : null,
+                              _nameController.text.length > 30 ? 40 : null,
                           controller: _nameController,
                           validator: (value) {
                             if (_isCreatePressed) {

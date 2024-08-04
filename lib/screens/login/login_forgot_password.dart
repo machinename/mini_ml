@@ -5,16 +5,16 @@ import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class ForgotPassword extends StatefulWidget {
-  const ForgotPassword({
+class LoginForgotPassword extends StatefulWidget {
+  const LoginForgotPassword({
     super.key,
   });
 
   @override
-  State<ForgotPassword> createState() => _ForgotPasswordState();
+  State<LoginForgotPassword> createState() => _LoginForgotPasswordState();
 }
 
-class _ForgotPasswordState extends State<ForgotPassword> {
+class _LoginForgotPasswordState extends State<LoginForgotPassword> {
   bool _isSendPressed = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();

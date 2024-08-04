@@ -21,11 +21,30 @@ class _DataCreateState extends State<DataCreate> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _typeController = TextEditingController();
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
+  final FocusNode _typeFocusNode = FocusNode();
 
   String _dataSetPath = "";
   String _dataSetPathShort = "";
-  bool _isCreatePressed = false;
+
   DataType? _dataType;
+
+  Widget? _fileTypeIcon;
+
+  bool _isCreatePressed = false;
+
+  @override
+  void dispose() {
+    _nameFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    _typeFocusNode.dispose();
+    _nameController.dispose();
+    _typeController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   void _back() {
     Navigator.pop(context);
@@ -42,16 +61,17 @@ class _DataCreateState extends State<DataCreate> {
       User? user = appProvider.auth.currentUser;
 
       if (user == null) {
-        _showSnackBar("User Not Found");
+        _showSnackBar("User Not Found", color: Colors.red);
         return;
       }
 
       appProvider.setIsLoading(true);
       bool resourceExist =
-          await appProvider.checkForExisitingResource(projectId, data);
+          await appProvider.checkForExistingResource(projectId, data);
       if (resourceExist) {
         appProvider.setIsLoading(false);
-        _showSnackBar("Data with the same name already exists!");
+        _showSnackBar("Data with the same name already exists!",
+            color: Colors.red);
         return;
       }
 
@@ -60,10 +80,11 @@ class _DataCreateState extends State<DataCreate> {
       await appProvider.fetchResources(projectId);
       appProvider.setIsLoading(false);
       _back();
-      _showSnackBar("Data Created Successfully");
+      _showSnackBar("Data resource '${data.name}' has been created.",
+          color: Colors.green);
     } catch (error) {
       appProvider.setIsLoading(false);
-      _showSnackBar(error.toString());
+      _showSnackBar(error.toString(), color: Colors.red);
       throw Exception(error.toString());
     }
   }
@@ -97,8 +118,8 @@ class _DataCreateState extends State<DataCreate> {
     }
   }
 
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
+  void _showSnackBar(String string, {Color? color}) {
+    Dialogs.showSnackBar(context, string, color: color);
   }
 
   _buildBody(AppProvider appProvider) {
@@ -123,7 +144,7 @@ class _DataCreateState extends State<DataCreate> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
-                        maxLength: _nameController.text.length > 35 ? 40 : null,
+                        maxLength: _nameController.text.length > 30 ? 40 : null,
                         controller: _nameController,
                         validator: (value) {
                           if (_isCreatePressed) {
@@ -168,67 +189,74 @@ class _DataCreateState extends State<DataCreate> {
                             );
                           }),
                       SizedBox(height: Constants.getPaddingVertical(context)),
-                      DropdownMenu<String>(
-                        label: const Text('Type'),
-                        width: MediaQuery.of(context).size.width * .94,
-                        menuHeight: MediaQuery.of(context).size.height * .5,
-                        requestFocusOnTap: true,
-                        leadingIcon: const Icon(Icons.search),
-                        onSelected: (selectedValue) {
-                          if (selectedValue != null) {
-                            switch (selectedValue) {
-                              case 'image':
-                                setState(() {
-                                  // _dataType = DataSetType.image;
-                                });
-                                break;
-                              case 'tabular':
-                                setState(() {
-                                  if (_dataType != DataType.tabular) {
-                                    _dataSetPathShort = "";
-                                    _dataSetPath = "";
-                                  }
-                                  _dataType = DataType.tabular;
-                                });
-                                break;
-                              case 'text':
-                                setState(() {
-                                  // _dataType = DataSetType.text;
-                                });
-                                break;
-                              case 'video':
-                                setState(() {
-                                  // _dataType = DataSetType.video;
-                                });
-                                break;
-                              default:
-                                throw ArgumentError(
-                                    'Unknown ml_model_type: $selectedValue');
-                            }
-                          }
-                        },
-                        dropdownMenuEntries:
-                            DataType.values.map<DropdownMenuEntry<String>>(
-                          (entry) {
-                            return DropdownMenuEntry<String>(
-                                value: entry.name, label: entry.name);
-                          },
-                        ).toList(),
-                      ),
-                      SizedBox(
-                          height: Constants.getPaddingVertical(context) - 2),
                     ],
                   )),
             ),
+            Center(
+                child: DropdownMenu<String>(
+              focusNode: _typeFocusNode,
+              controller: _typeController,
+              enableSearch: !appProvider.isLoading,
+              label: const Text('Type'),
+              width: MediaQuery.of(context).orientation == Orientation.portrait
+                  ? MediaQuery.of(context).size.width * .94
+                  : MediaQuery.of(context).size.width * .88,
+              menuHeight: MediaQuery.of(context).size.height * .5,
+              enabled: !appProvider.isLoading,
+              leadingIcon: const Icon(Icons.search),
+              onSelected: (selectedValue) {
+                if (selectedValue != null) {
+                  switch (selectedValue) {
+                    case 'image':
+                      setState(() {
+                        // _dataType = DataSetType.image;
+                      });
+                      break;
+                    case 'tabular':
+                      setState(() {
+                        if (_dataType != DataType.tabular) {
+                          _dataSetPathShort = "";
+                          _dataSetPath = "";
+                        }
+                        _dataType = DataType.tabular;
+                      });
+                      break;
+                    case 'text':
+                      setState(() {
+                        // _dataType = DataSetType.text;
+                      });
+                      break;
+                    case 'video':
+                      setState(() {
+                        // _dataType = DataSetType.video;
+                      });
+                      break;
+                    default:
+                      _typeFocusNode.unfocus();
+                      throw ArgumentError(
+                          'Unknown ml_model_type: $selectedValue');
+                  }
+                }
+                _typeFocusNode.unfocus();
+              },
+              enableFilter: true,
+              dropdownMenuEntries: DataType.values
+                  .map<DropdownMenuEntry<String>>(
+                    (entry) => DropdownMenuEntry<String>(
+                        value: entry.name, label: entry.name),
+                  )
+                  .toList(),
+            )),
+            SizedBox(height: Constants.getPaddingVertical(context)),
             ListTile(
-                title: _dataType != null
-                    ? Text(
-                        '${_dataType.toString().split('.').last.replaceFirstMapped(RegExp(r'^[a-z]'), (match) => match.group(0)!.toUpperCase())} File')
-                    : const Text('Select Type First'),
-                subtitle: Text('File: $_dataSetPathShort'),
+                leading: _fileTypeIcon,
+                title: _dataSetPathShort.isNotEmpty
+                    ? Text(_dataSetPathShort)
+                    : const Text('Select a file'),
                 enabled: _dataType != null,
                 onTap: () => _showFilePicker(appProvider),
                 trailing: const Icon(Icons.file_upload)),
+            SizedBox(height: Constants.getPaddingVertical(context) - 2),
             Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: Constants.getPaddingHorizontal(context),

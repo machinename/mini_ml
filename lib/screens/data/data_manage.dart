@@ -30,6 +30,7 @@ class _DataManageState extends State<DataManage> {
   void _pushToDataDelete() {
     Helpers.pushTo(context, const DataDelete());
   }
+
   void _pushToDataVariables() {
     // Helpers.pushTo(context, const DataVariables());
   }
@@ -103,7 +104,17 @@ class _DataManageState extends State<DataManage> {
         actions: [
           IconButton(
               icon: const Icon(Icons.delete_sharp),
-              onPressed: () => _pushToDataDelete())
+              onPressed: () => _pushToDataDelete()),
+          IconButton(
+              icon: const Icon(Icons.download_sharp),
+              onPressed: () {
+                // _downloadModel();
+              }),
+          IconButton(
+              icon: const Icon(Icons.share_sharp),
+              onPressed: () {
+                // _shareModel();
+              }),
         ]);
   }
 

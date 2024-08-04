@@ -76,13 +76,13 @@ class _ReAuthState extends State<ReAuth> {
 
     switch (widget.route) {
       case 'email':
-        message = 'Please reauthenticate to update your email.';
+        message = 'Reauthenticate to update your email.';
         break;
       case 'delete':
         message = 'Reauthenticate to access account deletion.';
         break;
       case 'password':
-        message = 'Please reauthenticate to update your password.';
+        message = 'Reauthenticate to update your password.';
         break;
       default:
         message = '';

@@ -27,7 +27,7 @@ class _DataDescriptionState extends State<DataDescription> {
       Data? data = appProvider.projectProvider.currentData;
 
       if (data == null) {
-        _showSnackBar("Data not found");
+        _showSnackBar("Data not found", color: Colors.red);
         return;
       }
       bool? isSave = await Dialogs.showConfirmDialog(
@@ -41,12 +41,13 @@ class _DataDescriptionState extends State<DataDescription> {
         _back();
       }
     } catch (error) {
-      _showSnackBar("Error updating data description: ${error.toString()}");
+      _showSnackBar("Error updating data description: ${error.toString()}",
+          color: Colors.red);
     }
   }
 
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
+  void _showSnackBar(String string, {Color? color}) {
+    Dialogs.showSnackBar(context, string, color: color);
   }
 
   Widget _buildBody(AppProvider appProvider) {

@@ -1,9 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/login/forgot_password.dart';
-import 'package:mini_ml/screens/login/verify.dart';
-// import 'package:mini_ml/screens/login/verify.dart';
+import 'package:mini_ml/screens/login/login_forgot_password.dart';
+import 'package:mini_ml/screens/login/login_verify.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/utils/validators.dart';
@@ -11,19 +10,19 @@ import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SignOn extends StatefulWidget {
+class LoginSignOn extends StatefulWidget {
   final String mode;
 
-  const SignOn({
+  const LoginSignOn({
     required this.mode,
     super.key,
   });
 
   @override
-  State<SignOn> createState() => _SignOnState();
+  State<LoginSignOn> createState() => _LoginSignOnState();
 }
 
-class _SignOnState extends State<SignOn> {
+class _LoginSignOnState extends State<LoginSignOn> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -45,23 +44,26 @@ class _SignOnState extends State<SignOn> {
   }
 
   void _pushToForgotPassword() {
-    Helpers.pushTo(context, const ForgotPassword());
+    Helpers.pushTo(context, const LoginForgotPassword());
   }
 
   void _pushToVerfiy() {
-    Helpers.pushTo(context, const Verify());
+    Helpers.pushTo(context, const LoginVerify());
   }
 
-  void _showSnackBar(String string) {
-    Dialogs.showSnackBar(context, string);
+  void _showSnackBar(String string, {Color? color}) {
+    Dialogs.showSnackBar(context, string, color: color);
   }
 
-  void _signOn(AppProvider appProvider) async {
+  void _loginSignOn(AppProvider appProvider) async {
+    appProvider.resetProviderState();
     try {
       if (_isSignIn) {
         appProvider.setIsLoading(true);
         await appProvider.signIn(
             _emailController.text, _passwordController.text);
+        await appProvider.fetchAppData();
+
         appProvider.setIsLoading(false);
         _back();
       } else {
@@ -74,9 +76,7 @@ class _SignOnState extends State<SignOn> {
       }
     } catch (error) {
       appProvider.setIsLoading(false);
-      _showSnackBar(
-        error.toString(),
-      );
+      _showSnackBar(error.toString(), color: Colors.red);
     }
   }
 
@@ -90,10 +90,10 @@ class _SignOnState extends State<SignOn> {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'www.machinename.dev/terms_of_service',
+        path: 'machinename.dev/Mini ML - Terms of Service.pdf',
       );
 
-      if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         throw Exception('Could not launch ${uri.path}');
       }
     } catch (error) {
@@ -108,10 +108,10 @@ class _SignOnState extends State<SignOn> {
     try {
       final Uri uri = Uri(
         scheme: 'https',
-        path: 'www.machinename.dev/privacy_policy',
+        path: 'machinename.dev/Mini ML - Privacy Policy.pdf',
       );
 
-      if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         throw Exception('Could not launch ${uri.path}');
       }
     } catch (error) {
@@ -236,7 +236,7 @@ class _SignOnState extends State<SignOn> {
                         textAlign: TextAlign.start,
                         text: TextSpan(
                             text:
-                                'By tapping Create Account, you acknowledge that you have read the',
+                                'By tapping Create Account, you acknowledge that you have read the ',
                             style: const TextStyle(color: Colors.black),
                             children: [
                               TextSpan(
@@ -244,7 +244,7 @@ class _SignOnState extends State<SignOn> {
                                     ..onTap = () {
                                       _pushToPrivacyPolicy();
                                     },
-                                  text: ' Privacy Policy',
+                                  text: 'Privacy Policy',
                                   style: const TextStyle(
                                     decoration: TextDecoration.underline,
                                     color: Colors.blue,
@@ -281,7 +281,7 @@ class _SignOnState extends State<SignOn> {
                             );
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
-                              _signOn(appProvider);
+                              _loginSignOn(appProvider);
                             }
                           }
                         : null,
@@ -305,7 +305,7 @@ class _SignOnState extends State<SignOn> {
                             );
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
-                              _signOn(appProvider);
+                              _loginSignOn(appProvider);
                             }
                           }
                         : null,

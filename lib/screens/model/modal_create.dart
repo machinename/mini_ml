@@ -18,12 +18,29 @@ class ModalCreate extends StatefulWidget {
 class _ModalCreateState extends State<ModalCreate> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _dataController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  bool _isCreatePressed = false;
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
+  final FocusNode _dataFocusNode = FocusNode();
+
   String _dataId = '';
   String _dataName = '';
   String _dataType = '';
   ModelType? _modelType;
+
+  bool _isCreatePressed = false;
+
+  @override
+  void dispose() {
+    _nameFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    _dataFocusNode.dispose();
+    _nameController.dispose();
+    _dataController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   void _back() {
     Navigator.pop(context);
@@ -46,7 +63,7 @@ class _ModalCreateState extends State<ModalCreate> {
       var projectId = appProvider.projectProvider.id;
 
       bool resourceExist =
-          await appProvider.checkForExisitingResource(projectId, model);
+          await appProvider.checkForExistingResource(projectId, model);
       if (resourceExist) {
         _showSnackBar("Model with the same name already exists!");
         return;
@@ -138,88 +155,75 @@ class _ModalCreateState extends State<ModalCreate> {
                         );
                       }),
                   SizedBox(height: Constants.getPaddingVertical(context)),
-                  // appProvider.projectProvider.data.isEmpty
-                  //     ? TextFormField(
-                  //         decoration: const InputDecoration(
-                  //           labelText: 'Add A Data Resource To Create Model',
-                  //           border: OutlineInputBorder(),
-                  //         ),
-                  //         onChanged: null,
-                  //         // enabled: false,
-                  //       )
-                  //     :
-
-                  DropdownMenu<String>(
-                    label: const Text('Select Data'),
-                    width: MediaQuery.of(context).size.width * .94,
-                    menuHeight: MediaQuery.of(context).size.height * .5,
-                    requestFocusOnTap: true,
-                    enabled: appProvider.projectProvider.data.isNotEmpty,
-                    leadingIcon: appProvider.projectProvider.data.isEmpty
-                        ? null
-                        : const Icon(Icons.search),
-                    onSelected: (selectedValue) {
-                      if (selectedValue != null) {
-                        print(
-                          selectedValue
-                              .split(',')[1]
-                              .split('.')
-                              .last
-                              .replaceFirstMapped(
-                                RegExp(r'^(.)'),
-                                (match) => match.group(0)!.toUpperCase(),
-                              ),
-                        );
-                        String dataSetValue =
-                            selectedValue.split(',')[1].split('.').last;
-                        switch (dataSetValue) {
-                          case 'image':
-                            setState(() {
-                              _dataType = 'image';
-                            });
-                            break;
-                          case 'tabular':
-                            setState(() {
-                              _dataType = 'tabular';
-                            });
-                            break;
-                          case 'text':
-                            setState(() {
-                              _dataType = 'text';
-                            });
-                            break;
-                          case 'video':
-                            setState(() {
-                              _dataType = 'video';
-                            });
-                            break;
-
-                          default:
-                            throw ArgumentError(
-                                'Unknown ml_model_type: $selectedValue');
-                        }
-                        _dataId = selectedValue.split(',')[0];
-                        _dataName = selectedValue.split(',')[2];
-                      }
-                    },
-                    dropdownMenuEntries: appProvider.projectProvider.data
-                        .map<DropdownMenuEntry<String>>(
-                          (entry) => DropdownMenuEntry<String>(
-                            value:
-                                '${entry.id},${entry.dataType},${entry.name}',
-                            label:
-                                "${entry.name}: ${entry.dataType.toString().split('.').last.replaceFirstMapped(
-                                      RegExp(r'^(.)'),
-                                      (match) => match.group(0)!.toUpperCase(),
-                                    )}",
-                          ),
-                        )
-                        .toList(),
-                  ),
                 ],
               ),
             ),
           ),
+          Center(
+              child: DropdownMenu<String>(
+            focusNode: _dataFocusNode,
+            controller: _dataController,
+            enableSearch: !appProvider.isLoading,
+            label: const Text('Select Data'),
+            width: MediaQuery.of(context).orientation == Orientation.portrait
+                ? MediaQuery.of(context).size.width * .94
+                : MediaQuery.of(context).size.width * .88,
+            menuHeight: MediaQuery.of(context).size.height * .5,
+            enabled: appProvider.projectProvider.data.isNotEmpty &&
+                !appProvider.isLoading,
+            leadingIcon: appProvider.projectProvider.data.isEmpty
+                ? null
+                : const Icon(Icons.search),
+            onSelected: (selectedValue) {
+              if (selectedValue != null) {
+                String dataSetValue =
+                    selectedValue.split(',')[1].split('.').last;
+                switch (dataSetValue) {
+                  case 'image':
+                    setState(() {
+                      _dataType = 'image';
+                    });
+                    break;
+                  case 'tabular':
+                    setState(() {
+                      _dataType = 'tabular';
+                    });
+                    break;
+                  case 'text':
+                    setState(() {
+                      _dataType = 'text';
+                    });
+                    break;
+                  case 'video':
+                    setState(() {
+                      _dataType = 'video';
+                    });
+                    break;
+                  default:
+                    _dataFocusNode.unfocus();
+                    throw ArgumentError(
+                        'Unknown ml_model_type: $selectedValue');
+                }
+
+                _dataId = selectedValue.split(',')[0];
+                _dataName = selectedValue.split(',')[2];
+              }
+              _dataFocusNode.unfocus();
+            },
+            enableFilter: true,
+            dropdownMenuEntries: appProvider.projectProvider.data
+                .map<DropdownMenuEntry<String>>(
+                  (entry) => DropdownMenuEntry<String>(
+                    value: '${entry.id},${entry.dataType},${entry.name}',
+                    label:
+                        "${entry.name}: ${entry.dataType.toString().split('.').last.replaceFirstMapped(
+                              RegExp(r'^(.)'),
+                              (match) => match.group(0)!.toUpperCase(),
+                            )}",
+                  ),
+                )
+                .toList(),
+          )),
           ListTile(
             title: const Text('Classification - Coming Soon'),
             subtitle: const Text('To predict categories, etc.'),
@@ -249,7 +253,7 @@ class _ModalCreateState extends State<ModalCreate> {
             // enabled: _dataType == 'text',
             enabled: false,
             selected: _modelType == ModelType.naturalLanguageProcessing,
-            selectedColor: Colors.amber,
+            selectedColor: Colors.blue,
             onTap: () {
               setState(() {
                 _modelType = ModelType.naturalLanguageProcessing;
@@ -261,7 +265,7 @@ class _ModalCreateState extends State<ModalCreate> {
             subtitle: const Text('To predict continuous numeric values'),
             enabled: _dataType == 'tabular',
             selected: _modelType == ModelType.regression,
-            selectedColor: Colors.amber,
+            selectedColor: Colors.blue,
             onTap: () {
               setState(() {
                 _modelType = ModelType.regression;
@@ -275,7 +279,7 @@ class _ModalCreateState extends State<ModalCreate> {
               // enabled: _dataType == 'tabular',
               enabled: false,
               selected: _modelType == ModelType.timeSeriesForecasting,
-              selectedColor: Colors.amber,
+              selectedColor: Colors.blue,
               onTap: () {
                 setState(() {
                   _modelType = ModelType.timeSeriesForecasting;

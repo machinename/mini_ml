@@ -5,51 +5,31 @@ import 'package:mini_ml/utils/validators.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
-class AccountEmail extends StatefulWidget {
-  const AccountEmail({super.key});
+class AccountDisplayName extends StatefulWidget {
+  const AccountDisplayName({super.key});
 
   @override
-  State<AccountEmail> createState() => _AccountEmailState();
+  State<AccountDisplayName> createState() => _AccountDisplayNameState();
 }
 
-class _AccountEmailState extends State<AccountEmail> {
+class _AccountDisplayNameState extends State<AccountDisplayName> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _displayNameController = TextEditingController();
   bool _isSavePressed = false;
-  _exit() {
-    Navigator.pop(context);
+
+  _back() {
     Navigator.pop(context);
   }
 
-  void _showVerifyEmailDialog(AppProvider appProvider) {
-    showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Verify'),
-          content: const Text("Please verify your new email to update."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                _exit();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _updateEmail(AppProvider appProvider) async {
+  void _updateDisplayName(AppProvider appProvider) async {
     try {
       var currentUser = appProvider.auth.currentUser;
 
       if (currentUser != null) {
         appProvider.setIsLoading(true);
-        await currentUser.verifyBeforeUpdateEmail(_emailController.text);
+        await currentUser.updateDisplayName(_displayNameController.text);
         appProvider.setIsLoading(false);
-        _showVerifyEmailDialog(appProvider);
+        _back();
       }
     } catch (error) {
       appProvider.setIsLoading(false);
@@ -66,12 +46,12 @@ class _AccountEmailState extends State<AccountEmail> {
 
   _buildAppBar() {
     return AppBar(
-      title: const Text("Email"),
+      title: const Text("Display Name"),
       centerTitle: false,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_sharp),
         onPressed: () {
-          _exit();
+          _back();
         },
       ),
     );
@@ -94,15 +74,15 @@ class _AccountEmailState extends State<AccountEmail> {
                 key: _formKey,
                 child: TextFormField(
                   enabled: !appProvider.isLoading,
-                  controller: _emailController,
+                  controller: _displayNameController,
                   keyboardType: TextInputType.multiline,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Display Name',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (_isSavePressed) {
-                      return Validators.emailValidator(value);
+                      return Validators.nameValidator(value, "Display Name");
                     }
                     return null;
                   },
@@ -120,20 +100,20 @@ class _AccountEmailState extends State<AccountEmail> {
                       const RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero)),
                 ),
-                onPressed:
-                    _emailController.text.isNotEmpty && !appProvider.isLoading
-                        ? () {
-                            setState(
-                              () {
-                                _isSavePressed = true;
-                              },
-                            );
-                            if (_formKey.currentState != null &&
-                                _formKey.currentState!.validate()) {
-                              _updateEmail(appProvider);
-                            }
-                          }
-                        : null,
+                onPressed: _displayNameController.text.isNotEmpty &&
+                        !appProvider.isLoading
+                    ? () {
+                        setState(
+                          () {
+                            _isSavePressed = true;
+                          },
+                        );
+                        if (_formKey.currentState != null &&
+                            _formKey.currentState!.validate()) {
+                          _updateDisplayName(appProvider);
+                        }
+                      }
+                    : null,
                 child: const Text('Update'),
               ),
             ],

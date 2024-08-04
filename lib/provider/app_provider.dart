@@ -6,7 +6,6 @@ import 'package:mini_ml/models/data.dart';
 import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/models/resource.dart';
-import 'package:mini_ml/services/api_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -16,20 +15,29 @@ class AppProvider extends ChangeNotifier {
   late SharedPreferences _prefs;
   Project _projectProvider = Project();
   String _userStorageInMegaBytes = "0";
+  num _totalResources = 0;
 
   // Provider Accessors
   FirebaseAuth get auth => _auth;
   bool get isLoading => _isLoading;
   Project get projectProvider => _projectProvider;
   String get userStorageInMegaBytes => _userStorageInMegaBytes;
+  num get totalResources => _totalResources;
 
   // Lists Instances
   List<Project> _projects = [];
   // List Accessors
   List<Project> get projects => _projects;
 
-  void setIsLoading(bool isloading) {
-    _isLoading = isloading;
+  void setIsLoading(bool isLoading) {
+    _isLoading = isLoading;
+    notifyListeners();
+  }
+
+  void resetProviderState() {
+    _projectProvider = Project();
+    _userStorageInMegaBytes = "0";
+    _projects = [];
     notifyListeners();
   }
 
@@ -37,33 +45,41 @@ class AppProvider extends ChangeNotifier {
     try {
       _projectProvider = project;
       _prefs = await SharedPreferences.getInstance();
-      await _prefs.setString('recent_project', project.name);
-      notifyListeners();
-      print('Successfully set provider project: ${_projectProvider.name}');
+      await _prefs.setString(
+          'recent-project-${_auth.currentUser?.uid ?? ''}', project.name);
       await fetchResources(project.id);
+      notifyListeners();
     } catch (error) {
       throw Exception(error.toString());
     }
   }
 
-  Future<void> setProjectProviderEmpty() async {
+  Future<void> clearProjectProvider() async {
     try {
       _projectProvider = Project();
       _prefs = await SharedPreferences.getInstance();
-      await _prefs.setString('recent_project', '');
+      await _prefs.setString(
+          'recent-project-${_auth.currentUser?.uid ?? ''}', '');
+      notifyListeners();
     } catch (error) {
       throw Exception(error.toString());
-    } finally {
-      notifyListeners();
     }
+  }
+
+  void fetchTotalResource() {
+    for (var project in projects) {
+      _totalResources += project.getTotalResources();
+    }
+    notifyListeners();
   }
 
   Future<void> fetchAppData() async {
     try {
       if (_auth.currentUser != null) {
+        await fetchUserStorage();
         await fetchProjects();
         await fetchPreferences();
-        await fetchUserStorage();
+        fetchTotalResource();
       } else {
         print('User Not Logged In');
       }
@@ -72,120 +88,106 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  // Future<void> fetchUserAppData() {
-  //   try {
-  //     if (_auth.currentUser != null) {
-  //       await fetchProjects();
-  //       await fetchPreferences();
-  //       await fetchUserStorage();
-  //     } else {
-  //       print('User Not Logged In');
-  //     }
-  //   } catch (error) {
-  //     throw Exception(error.toString());
-  //   }
-  // }
-
   Future<void> fetchUserStorage() async {
     try {
-      if (_auth.currentUser != null) {
-        num? storage = await APIServices().fetchUserStorage(_auth.currentUser!);
-        if (storage != null) {
-          _userStorageInMegaBytes =
-              double.parse(storage.toString()).toStringAsFixed(2);
-          print(_userStorageInMegaBytes);
-        } else {
-          throw ('Error fetching user storage');
-        }
-      } else {
-        throw ('No user currently logged in');
+      int totalSize = 0;
+      final storageRef = FirebaseStorage.instance.ref();
+      final ListResult result = await storageRef.listAll();
+
+      for (Reference item in result.items) {
+        final FullMetadata metadata = await item.getMetadata();
+        totalSize += metadata.size ?? 0;
       }
+
+      for (Reference prefix in result.prefixes) {
+        totalSize += await _getFolderSize(prefix);
+      }
+
+      _userStorageInMegaBytes = (totalSize / (1024 * 1024)).toStringAsFixed(2);
+      print('User Storage - $_userStorageInMegaBytes');
     } catch (error) {
-      print('Error fetching user storage: $error');
-      throw FirebaseException(
-          plugin: 'firebase_storage', message: error.toString());
-    } finally {
-      notifyListeners();
+      throw Exception(error.toString());
     }
+  }
+
+  Future<int> _getFolderSize(Reference folderRef) async {
+    int folderSize = 0;
+    final ListResult result = await folderRef.listAll();
+
+    for (Reference item in result.items) {
+      final FullMetadata metadata = await item.getMetadata();
+      folderSize += metadata.size ?? 0;
+    }
+
+    for (Reference prefix in result.prefixes) {
+      folderSize += await _getFolderSize(prefix);
+    }
+
+    return folderSize;
   }
 
   Future<void> fetchPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
-    String? recentProject = _prefs.getString('recent_project');
+    try {
+      _prefs = await SharedPreferences.getInstance();
+      String? recentProject =
+          _prefs.getString('recent-project-${_auth.currentUser?.uid ?? ''}');
 
-    if (recentProject != null) {
-      for (Project project in _projects) {
-        if (project.name == recentProject) {
+      if (recentProject != null) {
+        final project = _projects.firstWhere((p) => p.name == recentProject,
+            orElse: () => Project());
+        if (project.id.isNotEmpty) {
           setProjectProvider(project);
-          return;
         }
+      } else {
+        print('No Recent Projects');
       }
-      print('Provider project empty');
-    } else {
-      print('No Recent Projects');
+    } catch (error) {
+      throw Exception(error.toString());
     }
   }
 
-  Future<bool> checkForExisitingProject(Project project) async {
+  Future<bool> checkForExistingProject(Project project) async {
     try {
-      if (_auth.currentUser != null) {
-        QuerySnapshot existingProjects = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .where('name', isEqualTo: project.name.toLowerCase())
-            .get();
-
-        if (existingProjects.docs.isNotEmpty) {
-          return true;
-        }
-        return false;
-      } else {
+      if (_auth.currentUser == null) {
         throw ('No user currently logged in');
       }
+
+      final existingProjects = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .where('name', isEqualTo: project.name.toLowerCase())
+          .get();
+
+      return existingProjects.docs.isNotEmpty;
     } catch (error) {
-      print('Error creating project on database: $error');
+      print('Error checking existing project: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
 
-  Future<bool> checkForExisitingResource(
+  Future<bool> checkForExistingResource(
       String projectId, Resource resource) async {
     try {
-      if (_auth.currentUser != null) {
-        if (resource.resourceType == ResourceType.data) {
-          QuerySnapshot existingDataSet = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(_auth.currentUser?.uid)
-              .collection('projects')
-              .doc(projectId)
-              .collection('data')
-              .where('name', isEqualTo: resource.name.toLowerCase())
-              .get();
-
-          if (existingDataSet.docs.isNotEmpty) {
-            return true;
-          }
-        } else {
-          QuerySnapshot existingModel = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(_auth.currentUser?.uid)
-              .collection('projects')
-              .doc(projectId)
-              .collection('models')
-              .where('name', isEqualTo: resource.name.toLowerCase())
-              .get();
-
-          if (existingModel.docs.isNotEmpty) {
-            return true;
-          }
-        }
-        return false;
-      } else {
+      if (_auth.currentUser == null) {
         throw ('No user currently logged in');
       }
+
+      final collection =
+          resource.resourceType == ResourceType.data ? 'data' : 'models';
+
+      final existingResources = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection(collection)
+          .where('name', isEqualTo: resource.name.toLowerCase())
+          .get();
+
+      return existingResources.docs.isNotEmpty;
     } catch (error) {
-      print('Error creating resource on database: $error');
+      print('Error checking existing resource: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
@@ -195,14 +197,14 @@ class AppProvider extends ChangeNotifier {
       if (_auth.currentUser == null) {
         throw Exception("User is not valid");
       }
-      DocumentReference docRef = FirebaseFirestore.instance
+
+      final docRef = FirebaseFirestore.instance
           .collection('users')
           .doc(_auth.currentUser?.uid)
           .collection('projects')
           .doc(project.id);
 
-      var projectJson = project.toJson();
-      await docRef.update(projectJson);
+      await docRef.update(project.toJson());
     } catch (error) {
       throw FirebaseException(plugin: error.toString());
     }
@@ -210,219 +212,150 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> deleteProject(Project project) async {
     try {
-      if (_auth.currentUser != null) {
-        for (Data data in project.data) {
-          await deleteResource(project.id, data);
-        }
-
-        for (Model model in project.models) {
-          await deleteResource(project.id, model);
-        }
-      } else {
+      if (_auth.currentUser == null) {
         throw ('No user currently logged in');
       }
 
-      final DocumentReference docRef = FirebaseFirestore.instance
+      // Delete data and models
+      await Future.wait([
+        ...project.data.map((data) => deleteResource(project.id, data)),
+        ...project.models.map((model) => deleteResource(project.id, model)),
+      ]);
+
+      final docRef = FirebaseFirestore.instance
           .collection('users')
           .doc(_auth.currentUser?.uid)
           .collection('projects')
           .doc(project.id);
-      docRef.delete();
+
+      await docRef.delete();
     } catch (error) {
-      print('Error deleting project from database: $error');
+      print('Error deleting project: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
 
   Future<void> fetchProjects({String? projectName}) async {
     try {
-      if (_auth.currentUser != null) {
-        QuerySnapshot projects = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .orderBy('created_at', descending: true)
-            .get();
+      if (_auth.currentUser == null) {
+        throw ('No user currently logged in');
+      }
 
-        if (_projects !=
-            projects.docs
-                .map((doc) =>
-                    Project.fromJson(doc.data() as Map<String, dynamic>))
-                .toList()) {
-          _projects = projects.docs
-              .map(
-                  (doc) => Project.fromJson(doc.data() as Map<String, dynamic>))
-              .toList();
-        } else {
-          print('No new projects to fetch');
-        }
+      final projectsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .orderBy('created_at', descending: true)
+          .get();
 
-        if (projectName != null) {
-          for (Project project in _projects) {
-            if (project.name == projectName) {
-              setProjectProvider(project);
-              return;
-            }
-          }
+      final fetchedProjects = projectsSnapshot.docs
+          .map((doc) => Project.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      if (_projects != fetchedProjects) {
+        _projects = fetchedProjects;
+        notifyListeners();
+      }
+
+      if (projectName != null) {
+        final project = _projects.firstWhere((p) => p.name == projectName,
+            orElse: () => Project());
+        if (project.id.isNotEmpty) {
+          setProjectProvider(project);
         }
-        print('Successfully fetched projects from database');
       }
     } catch (error) {
       throw FirebaseException(plugin: error.toString());
-    } finally {
-      notifyListeners();
     }
   }
 
   Future<void> updateResource(String projectId, Resource resource) async {
     try {
-      if (_auth.currentUser != null) {
-        DocumentReference docRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .doc(projectId);
-
-        if (resource.resourceType == ResourceType.data) {
-          docRef = docRef.collection('data').doc(resource.id);
-          await docRef.update(resource.toJson());
-          print('Successfully updated data set on database');
-        } else if (resource.resourceType == ResourceType.model) {
-          docRef = docRef.collection('models').doc(resource.id);
-          await docRef.update(resource.toJson());
-          print('Successfully updated model on database');
-        } else {
-          throw ('Invalid Resource Type');
-        }
+      if (_auth.currentUser == null) {
+        throw ('No user currently logged in');
       }
+
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection(
+              resource.resourceType == ResourceType.data ? 'data' : 'models')
+          .doc(resource.id);
+
+      await docRef.update(resource.toJson());
     } catch (error) {
-      print('Error creating project on database: $error');
+      print('Error updating resource: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
 
   Future<void> deleteResource(String projectId, Resource resource) async {
     try {
-      if (_auth.currentUser != null) {
-        final DocumentReference docRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .doc(projectId);
-
-        final Reference storageRef = FirebaseStorage.instance
-            .ref()
-            .child('users/${_auth.currentUser?.uid}/projects/$projectId');
-
-        if (resource.resourceType == ResourceType.data) {
-          var dataDocRef = docRef.collection('data').doc(resource.id);
-          await dataDocRef.delete();
-
-          var dataStorageRef = storageRef.child('data/${resource.id}');
-          await dataStorageRef.delete();
-
-          print('Successfully deleted data from database');
-        } else {
-          var modelDocRef = docRef.collection('models').doc(resource.id);
-          await modelDocRef.delete();
-
-          var modelStorageRef = storageRef.child('models/${resource.id}');
-          await modelStorageRef.delete();
-
-          print('Successfully deleted model from database');
-        }
+      if (_auth.currentUser == null) {
+        throw ('No user currently logged in');
       }
-    } catch (error) {
-      print('Error deleting resource from database: $error');
-      throw FirebaseException(plugin: error.toString());
-    }
-  }
 
-  Future<void> deleteDataFromAssociatedModels(
-      String projectId, Data data) async {
-    try {
-      if (_auth.currentUser != null) {
-        final DocumentReference docRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .doc(projectId);
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(projectId);
 
-        for (Model model in _projectProvider.models) {
-          if (model.dataId == data.id) {
-            var newModel = model;
-            newModel.dataId = '';
-            docRef.collection('models').doc(model.id).update(newModel.toJson());
-            print('Successfully deleted data from associated models');
-          }
-        }
-      }
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('users/${_auth.currentUser?.uid}/projects/$projectId');
+
+      final collection =
+          resource.resourceType == ResourceType.data ? 'data' : 'models';
+      final resourceDocRef = docRef.collection(collection).doc(resource.id);
+      await resourceDocRef.delete();
+
+      final resourceStorageRef = storageRef.child('$collection/${resource.id}');
+      await resourceStorageRef.delete();
+
+      print('Successfully deleted resource');
     } catch (error) {
-      print('Error deleting resource from database: $error');
+      print('Error deleting resource: $error');
       throw FirebaseException(plugin: error.toString());
     }
   }
 
   Future<void> fetchResources(String projectId) async {
     try {
-      if (_auth.currentUser != null) {
-        QuerySnapshot data = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .doc(projectId)
-            .collection('data')
-            .get();
-
-        QuerySnapshot models = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.currentUser?.uid)
-            .collection('projects')
-            .doc(projectId)
-            .collection('models')
-            .get();
-
-        if (_projectProvider.data ==
-                data.docs
-                    .map((doc) =>
-                        Data.fromJson(doc.data() as Map<String, dynamic>))
-                    .toList() &&
-            _projectProvider.models ==
-                models.docs
-                    .map((doc) =>
-                        Model.fromJson(doc.data() as Map<String, dynamic>))
-                    .toList()) {
-          return;
-        }
-
-        _projectProvider.data = data.docs
-            .map((doc) => Data.fromJson(doc.data() as Map<String, dynamic>))
-            .toList();
-
-        _projectProvider.models = models.docs
-            .map((doc) => Model.fromJson(doc.data() as Map<String, dynamic>))
-            .toList();
-
-        print(
-            'Successfully fetched resources for project: ${_projectProvider.name}');
-      } else {
+      if (_auth.currentUser == null) {
         throw ('No user currently logged in');
       }
-    } catch (error) {
-      throw Exception(error.toString());
-    } finally {
-      notifyListeners();
-    }
-  }
 
-  Map<String, dynamic> getDataVariables(String dataId) {
-    try {
-      for (Data data in _projectProvider.data) {
-        if (data.id == dataId) {
-          return data.variables;
-        }
+      final dataSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection('data')
+          .get();
+
+      final modelsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection('models')
+          .get();
+
+      final newData =
+          dataSnapshot.docs.map((doc) => Data.fromJson(doc.data())).toList();
+
+      final newModels =
+          modelsSnapshot.docs.map((doc) => Model.fromJson(doc.data())).toList();
+
+      if (_projectProvider.data != newData ||
+          _projectProvider.models != newModels) {
+        _projectProvider.data = newData;
+        _projectProvider.models = newModels;
+        notifyListeners();
       }
-      throw ('Data Set Not Found');
     } catch (error) {
       throw Exception(error.toString());
     }
@@ -434,36 +367,8 @@ class AppProvider extends ChangeNotifier {
           email: email, password: password);
     } catch (error) {
       throw FirebaseAuthException(code: error.toString());
-    } finally {
-      notifyListeners();
     }
   }
-
-  // on FirebaseAuthException catch (e) {
-  //     if (e.code == 'weak-password') {
-  //       message = 'The password provided is too weak.';
-  //     } else if (e.code == 'email-already-in-use') {
-  //       message = 'An account already exists with that email.';
-  //     }
-  //     Fluttertoast.showToast(
-  //       msg: message,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.SNACKBAR,
-  //       backgroundColor: Colors.black54,
-  //       textColor: Colors.white,
-  //       fontSize: 14.0,
-  //     );
-  //   } catch (e) {
-  //     Fluttertoast.showToast(
-  //       msg: "Failed: $e",
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.SNACKBAR,
-  //       backgroundColor: Colors.black54,
-  //       textColor: Colors.white,
-  //       fontSize: 14.0,
-  //     );
-  //   }
-  // }
 
   Future<void> signIn(String email, String password) async {
     try {
@@ -472,17 +377,13 @@ class AppProvider extends ChangeNotifier {
       switch (e.code) {
         case 'user-not-found':
           throw 'No user found for that email.';
-        case 'wrong-password':
-          throw 'Wrong password provided for that user.';
+        case 'invalid-credential':
+          throw 'Invalid Credentials';
         case 'too-many-requests':
           throw 'Too many requests! Try again later. If issue persists, contact support.';
         default:
           throw 'An error occurred: ${e.message} - code: ${e.code}';
       }
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 
@@ -491,23 +392,17 @@ class AppProvider extends ChangeNotifier {
       await _auth.signOut();
     } on FirebaseAuthException catch (e) {
       throw 'An error occurred: ${e.message} - code: ${e.code}';
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 
   Future<void> reauthenticateWithCredential(String password) async {
     try {
-      if (_auth.currentUser == null) {
-        throw ('User not found');
+      if (_auth.currentUser == null || _auth.currentUser!.email == null) {
+        throw ('User or email not found');
       }
-      if (_auth.currentUser!.email == null) {
-        throw ('Email not found');
-      }
-      String email = _auth.currentUser!.email!;
-      AuthCredential credential =
+
+      final email = _auth.currentUser!.email!;
+      final credential =
           EmailAuthProvider.credential(email: email, password: password);
       await _auth.currentUser?.reauthenticateWithCredential(credential);
     } on FirebaseAuthException catch (e) {
@@ -517,10 +412,6 @@ class AppProvider extends ChangeNotifier {
         default:
           throw 'An error occurred: ${e.message} - code: ${e.code}';
       }
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 
@@ -530,37 +421,22 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> resetPassword() async {
     try {
-      if (_auth.currentUser == null) {
-        throw ('User not found');
+      if (_auth.currentUser == null || _auth.currentUser!.email == null) {
+        throw ('User or email not found');
       }
 
-      if (_auth.currentUser!.email == null) {
-        throw ('Email not found');
-      }
-
-      String email = _auth.currentUser!.email!;
+      final email = _auth.currentUser!.email!;
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
       throw 'An error occurred: ${e.message}';
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 
   Future<void> deleteAccount() async {
     try {
-      if (_auth.currentUser != null) {
-        print('Deleting Account');
-        await _auth.currentUser!.delete();
-      }
+      await _auth.currentUser!.delete();
     } on FirebaseAuthException catch (e) {
       throw 'An error occurred: ${e.message} - code: ${e.code}';
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 
@@ -571,10 +447,6 @@ class AppProvider extends ChangeNotifier {
       }
     } on FirebaseAuthException catch (e) {
       throw 'An error occurred: ${e.message} - code: ${e.code}';
-    } catch (error) {
-      throw 'An unexpected error occurred: ${error.toString()}';
-    } finally {
-      notifyListeners();
     }
   }
 }
