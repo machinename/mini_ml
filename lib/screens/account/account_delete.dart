@@ -28,8 +28,8 @@ class _AccountDeleteState extends State<AccountDelete> {
     try {
       appProvider.setIsLoading(true);
       await appProvider.deleteAccount();
-      appProvider.setIsLoading(false);
       _exit();
+      appProvider.setIsLoading(false);
       _showSnackBar("Account deleted successfully.");
     } catch (error) {
       _showSnackBar(error.toString());
@@ -44,6 +44,9 @@ class _AccountDeleteState extends State<AccountDelete> {
   }
 
   _buildBody(AppProvider appProvider) {
+    if (appProvider.auth.currentUser == null) {
+      return const Center(child: Text('User not found'));
+    }
     return Stack(
       children: [
         if (appProvider.isLoading)
@@ -73,6 +76,41 @@ class _AccountDeleteState extends State<AccountDelete> {
                         onChanged: (_) {
                           setState(() {});
                         })),
+                SizedBox(height: Constants.getPaddingVertical(context)),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  TextButton(
+                      style: ButtonStyle(
+                          foregroundColor: appProvider.isLoading
+                              ? WidgetStateProperty.all(Colors.grey[300])
+                              : WidgetStateProperty.all(Colors.blue[800])),
+                      onPressed: !appProvider.isLoading
+                          ? () {
+                              _back();
+                            }
+                          : null,
+                      child: const Text('Cancel')),
+                  SizedBox(width: Constants.getPaddingHorizontal(context)),
+                  TextButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            _deleteController.text == 'delete-account' &&
+                                    !appProvider.isLoading
+                                ? WidgetStateProperty.all(Colors.blue[800])
+                                : WidgetStateProperty.all(Colors.grey[300]),
+                        foregroundColor:
+                            _deleteController.text == 'delete-account' &&
+                                    !appProvider.isLoading
+                                ? WidgetStateProperty.all(Colors.white)
+                                : WidgetStateProperty.all(Colors.grey[500])),
+                    onPressed: _deleteController.text == 'delete-account' &&
+                            !appProvider.isLoading
+                        ? () {
+                            _deleteAccount(appProvider);
+                          }
+                        : null,
+                    child: const Text('Delete'),
+                  )
+                ])
               ],
             )),
       ],
@@ -81,27 +119,28 @@ class _AccountDeleteState extends State<AccountDelete> {
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-        title: const Text('Delete Account'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_sharp),
-          onPressed: () {
-            _back();
-          },
-        ),
-        centerTitle: false,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TextButton(
-                onPressed: _deleteController.text == 'delete-account' &&
-                        !appProvider.isLoading
-                    ? () {
-                        _deleteAccount(appProvider);
-                      }
-                    : null,
-                child: const Text('Delete'),
-              ))
-        ]);
+      title: const Text('Delete Account'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_sharp),
+        onPressed: () {
+          _back();
+        },
+      ),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //       padding: const EdgeInsets.symmetric(horizontal: 4),
+      //       child: TextButton(
+      //         onPressed: _deleteController.text == 'delete-account' &&
+      //                 !appProvider.isLoading
+      //             ? () {
+      //                 _deleteAccount(appProvider);
+      //               }
+      //             : null,
+      //         child: const Text('Delete'),
+      //       ))
+      // ]
+    );
   }
 
   @override

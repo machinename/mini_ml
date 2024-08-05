@@ -3,14 +3,14 @@ import 'package:mini_ml/provider/app_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AccountLicenses extends StatelessWidget {
-  const AccountLicenses({super.key});
+class OpenSourceSoftware extends StatelessWidget {
+  const OpenSourceSoftware({super.key});
 
 //   @override
-//   State<AccountLicenses> createState() => _AccountLicensesState();
+//   State<OpenSourceSoftware> createState() => _AccountLicensesState();
 // }
 
-// class _AccountLicensesState extends State<AccountLicenses> {
+// class _AccountLicensesState extends State<OpenSourceSoftware> {
 
   static final Map<String, String> _licensesList = {
     'Cloud Firestore Plugin for Flutter': 'BSD 3-Clause License',
@@ -97,7 +97,7 @@ class AccountLicenses extends StatelessWidget {
           _back(context);
         },
       ),
-      title: const Text("Open Source Licenses"),
+      title: const Text("Open Source Software"),
       centerTitle: false,
     );
   }

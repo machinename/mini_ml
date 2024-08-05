@@ -3,8 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_display_name.dart';
+import 'package:mini_ml/screens/account/account_email.dart';
+import 'package:mini_ml/screens/miscellaneous/open_source_software.dart';
 // import 'package:mini_ml/screens/account/account_phone.dart';
-import 'package:mini_ml/screens/account/account_privacy.dart';
 import 'package:mini_ml/screens/miscellaneous/re_auth.dart';
 import 'package:mini_ml/screens/support/support_screen.dart';
 import 'package:mini_ml/utils/constants.dart';
@@ -29,6 +30,11 @@ class _AccountManageState extends State<AccountManage> {
     Navigator.popUntil(context, ModalRoute.withName('/'));
   }
 
+  void _pushToAccountEmail(AppProvider appProvider) {
+    String email = appProvider.auth.currentUser!.email ?? "";
+    Helpers.pushTo(context, AccountEmail(email: email));
+  }
+
   void _pushToDisplayName(AppProvider appProvider) {
     String displayName = appProvider.auth.currentUser!.displayName ?? "";
     Helpers.pushTo(context, AccountDisplayName(displayName: displayName));
@@ -47,27 +53,32 @@ class _AccountManageState extends State<AccountManage> {
   //   Helpers.pushTo(context, const AccountPhone());
   // }
 
-  void _pushToPrivacy() {
-    Helpers.pushTo(context, const AccountPrivacy());
+  // void _pushToPrivacy() {
+  //   Helpers.pushTo(context, const AccountPrivacy());
+  // }
+
+  void _pushToOpenSourceSoftware() {
+    Helpers.pushTo(context, const OpenSourceSoftware());
   }
 
-  void _pushToOpenSourceSoftware() async {
-    try {
-      // final Uri uri = Uri(
-      //   scheme: 'https',
-      //   path: 'machinename.dev/Mini ML - Open Source Software.pdf',
-      // );
+  // void _pushToOpenSourceSoftware() async {
+  //   try {
 
-      // if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      //   throw Exception('Could not launch ${uri.path}');
-      // }
-    } catch (error) {
-      _showSnackBar('Error Occured');
-      throw Exception(
-        error.toString(),
-      );
-    }
-  }
+  //     // final Uri uri = Uri(
+  //     //   scheme: 'https',
+  //     //   path: 'machinename.dev/Mini ML - Open Source Software.pdf',
+  //     // );
+
+  //     // if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+  //     //   throw Exception('Could not launch ${uri.path}');
+  //     // }
+  //   } catch (error) {
+  //     _showSnackBar('Error Occured');
+  //     throw Exception(
+  //       error.toString(),
+  //     );
+  //   }
+  // }
 
   Future<void> _pushToTermsOfService() async {
     try {
@@ -164,7 +175,8 @@ class _AccountManageState extends State<AccountManage> {
         leading: const Icon(Icons.email_outlined),
         title: const Text("Email"),
         subtitle: email.isNotEmpty ? Text(email) : null,
-        onTap: () => _pushToReAuth('email'),
+        // onTap: () => _pushToReAuth('email'),
+        onTap: () => _pushToAccountEmail(appProvider),
         trailing: const Icon(Icons.chevron_right_sharp),
       ),
       // ListTile(
@@ -191,10 +203,24 @@ class _AccountManageState extends State<AccountManage> {
           onTap: () => _pushToReAuth('password'),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
-          leading: const Icon(Icons.privacy_tip_outlined),
-          title: const Text("Privacy"),
-          onTap: () => _pushToPrivacy(),
-          trailing: const Icon(Icons.chevron_right_sharp)),
+          leading: const Icon(Icons.download_outlined),
+          title: const Text("Download Data"),
+          onTap: () {
+            _pushToReAuth('download');
+          },
+          trailing: const Icon(Icons.chevron_right)),
+      ListTile(
+          leading: const Icon(Icons.delete_forever_outlined),
+          title: const Text("Delete Account"),
+          onTap: () {
+            _pushToReAuth('delete');
+          },
+          trailing: const Icon(Icons.chevron_right)),
+      // ListTile(
+      //     leading: const Icon(Icons.privacy_tip_outlined),
+      //     title: const Text("Privacy"),
+      //     onTap: () => _pushToPrivacy(),
+      //     trailing: const Icon(Icons.chevron_right_sharp)),
       //           const ListTile(
       //     title: Text(
       //   'General',

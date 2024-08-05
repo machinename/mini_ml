@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/account/account_licenses.dart';
-import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,9 +16,9 @@ class _AccountLegalState extends State<AccountLegal> {
     Navigator.pop(context);
   }
 
-  void _pushToLicenses() {
-    Helpers.pushTo(context, const AccountLicenses());
-  }
+  // void _pushToOpenSourceSoftware() {
+  //   Helpers.pushTo(context, const OpenSourceSoftware());
+  // }
 
   Future<void> _pushToTermsOfService() async {
     try {

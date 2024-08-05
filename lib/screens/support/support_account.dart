@@ -52,7 +52,7 @@ class SupportAccount extends StatelessWidget {
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
           leading: const Icon(Icons.description_outlined),
-          title: const Text("Close Account"),
+          title: const Text("Delete Account"),
           onTap: () => (),
           trailing: const Icon(Icons.chevron_right_sharp)),
     ]);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_delete.dart';
+import 'package:mini_ml/screens/account/account_download.dart';
 import 'package:mini_ml/screens/account/account_email.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:mini_ml/utils/helpers.dart';
@@ -28,12 +29,17 @@ class _ReAuthState extends State<ReAuth> {
     Navigator.pop(context);
   }
 
-  void _pushToAccountEmail() {
-    Helpers.pushTo(context, const AccountEmail());
+  void _pushToAccountEmail(AppProvider appProvider) {
+    String email = appProvider.auth.currentUser!.email ?? "";
+    Helpers.pushTo(context, AccountEmail(email: email));
   }
 
   void _pushToAccountDelete() {
     Helpers.pushTo(context, const AccountDelete());
+  }
+
+  void _pushToAccountDownload() {
+    Helpers.pushTo(context, const AccountDownload());
   }
 
   void _resetPassword(AppProvider appProvider) async {
@@ -56,9 +62,11 @@ class _ReAuthState extends State<ReAuth> {
       await appProvider.reauthenticateWithCredential(_passwordController.text);
       appProvider.setIsLoading(false);
       if (widget.route == 'email') {
-        _pushToAccountEmail();
+        _pushToAccountEmail(appProvider);
       } else if (widget.route == 'delete') {
         _pushToAccountDelete();
+      } else if (widget.route == 'download') {
+        _pushToAccountDownload();
       } else if (widget.route == 'password') {
         _resetPassword(appProvider);
       }
@@ -149,16 +157,20 @@ class _ReAuthState extends State<ReAuth> {
         message = 'Email';
         break;
       case 'delete':
-        message = 'Account Deletion';
+        message = 'Delete Account';
+        break;
+      case 'download':
+        message = 'Download Data';
         break;
       case 'password':
-        message = 'Password Reset';
+        message = 'Password';
         break;
       default:
         message = '';
     }
     return AppBar(
-      title: Text(message),
+      // title: Text(message),
+      title: const Text('Re-Authenticate'),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_sharp),
         onPressed: () {

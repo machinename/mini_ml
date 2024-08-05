@@ -67,7 +67,9 @@ class DashboardState extends State<Dashboard> {
   }
 
   Widget _buildBody(AppProvider appProvider) {
-
+    if(appProvider.auth.currentUser == null) {
+      return const Center(child: Text('User not found'));
+    }
 
     String displayName = '';
     var currentUserDisplayName = appProvider.auth.currentUser?.displayName;
@@ -82,6 +84,7 @@ class DashboardState extends State<Dashboard> {
     }
 
     return Stack(children: [
+      
       if (appProvider.isLoading)
         const Center(
           child: CircularProgressIndicator.adaptive(),
@@ -120,12 +123,18 @@ class DashboardState extends State<Dashboard> {
                 leading: const Icon(Icons.email_outlined),
                 title: const Text('Resend Verification Email'),
                 onTap: () => _resendEmail(appProvider),
+                
+                
                 trailing: const Icon(Icons.chevron_right_sharp)),
             ListTile(
               enabled: !appProvider.isLoading,
-              leading: const Icon(Icons.warning_outlined, color: Colors.red),
+              leading:  Icon(Icons.warning_outlined, color: Colors.red[800]),
               title: const Text('Verify your email address!'),
               trailing: TextButton(
+                          style: ButtonStyle(
+                      foregroundColor: appProvider.isLoading
+                          ? WidgetStateProperty.all(Colors.grey[300])
+                          : WidgetStateProperty.all(Colors.blue[800])),
                   onPressed: () => _refreshUser(appProvider),
                   child: const Text('Refresh')),
             )

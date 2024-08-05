@@ -10,8 +10,7 @@ class AccountPrivacy extends StatefulWidget {
   });
 
   @override
-  State<AccountPrivacy> createState() =>
-      _AccountPrivacyState();
+  State<AccountPrivacy> createState() => _AccountPrivacyState();
 }
 
 class _AccountPrivacyState extends State<AccountPrivacy> {
@@ -28,40 +27,22 @@ class _AccountPrivacyState extends State<AccountPrivacy> {
     );
   }
 
-  void _downloadData(AppProvider appProvider) async {
-    try {
-      appProvider.setIsLoading(true);
-      // await appProvider.downloadData();
-      appProvider.setIsLoading(false);
-    } catch (error) {
-      appProvider.setIsLoading(false);
-      throw Exception(
-        error.toString(),
-      );
-    }
-  }
-
   _buildBody(AppProvider appProvider) {
     return ListView(
       physics: const ClampingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: Constants.getPaddingHorizontal(context),
-      ),
       children: [
-
-
         ListTile(
+            leading: const Icon(Icons.download_outlined),
             title: const Text("Download Your Data"),
-            subtitle: const Text("Download all of your data"),
             onTap: () {
-              _pushToReAuth('delete');
+              _pushToReAuth('download');
             },
             trailing: const Icon(Icons.chevron_right)),
-                    ListTile(
+        ListTile(
+          leading: const Icon(Icons.delete_forever_outlined),
             title: const Text("Delete Your Account"),
-            subtitle: const Text("Delete your entire account and data"),
             onTap: () {
-              _downloadData(appProvider);
+              _pushToReAuth('delete');
             },
             trailing: const Icon(Icons.chevron_right)),
       ],
