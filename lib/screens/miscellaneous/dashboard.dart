@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
-import 'package:mini_ml/screens/miscellaneous/support_screen.dart';
+import 'package:mini_ml/screens/support/support_screen.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
@@ -67,13 +67,18 @@ class DashboardState extends State<Dashboard> {
   }
 
   Widget _buildBody(AppProvider appProvider) {
-    String? displayName = appProvider.auth.currentUser?.displayName;
+
+
+    String displayName = '';
+    var currentUserDisplayName = appProvider.auth.currentUser?.displayName;
+    if (currentUserDisplayName != null) {
+      displayName = currentUserDisplayName;
+    }
 
     bool emailVerified = false;
     var currentUser = appProvider.auth.currentUser;
     if (currentUser != null) {
       emailVerified = currentUser.emailVerified;
-      print("Is email verified $emailVerified");
     }
 
     return Stack(children: [
@@ -85,7 +90,9 @@ class DashboardState extends State<Dashboard> {
         const ListTile(
             title: Text('Dashboard',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))),
-        // ListTile(title: _welcomeMessage(context, appProvider)),
+                
+        if(displayName.isNotEmpty)
+        ListTile(title:Text('Hello, $displayName!') ),
         ListTile(
           leading: const Icon(Icons.account_tree_outlined),
           title: const Text("Projects"),
@@ -102,7 +109,7 @@ class DashboardState extends State<Dashboard> {
         ListTile(
           enabled: !appProvider.isLoading,
           leading: const Icon(Icons.help_outline_outlined),
-          title: const Text("Mini ML - Support"),
+          title: const Text("Support"),
           onTap: () => _pushToSupport(),
           trailing: const Icon(Icons.chevron_right_sharp),
         ),

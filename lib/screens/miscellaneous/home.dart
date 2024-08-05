@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_manage.dart';
 import 'package:mini_ml/screens/data/data_create.dart';
-import 'package:mini_ml/screens/miscellaneous/dashboard.dart';
 import 'package:mini_ml/screens/data/data_screen.dart';
+import 'package:mini_ml/screens/miscellaneous/dashboard.dart';
+
 import 'package:mini_ml/screens/model/model_screen.dart';
 import 'package:mini_ml/screens/model/modal_create.dart';
 import 'package:mini_ml/screens/project/project_create.dart';
 import 'package:mini_ml/screens/project/project_manage.dart';
 import 'package:mini_ml/screens/project/project_screen.dart';
+
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = const [
     Dashboard(),
     ModelScreen(),
-    DataScreen(),
+    DataScreen()
   ];
 
   // @override

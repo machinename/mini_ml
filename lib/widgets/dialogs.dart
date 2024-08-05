@@ -191,7 +191,7 @@ class Dialogs {
   /// [seconds] - The duration for which the SnackBar is displayed (default is 4 seconds).
   /// [color] - The color of the text in the SnackBar (optional).
   static void showSnackBar(BuildContext context, String message,
-      {int seconds = 4, Color? color}) {
+      {int seconds = 2, Color? color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Center(

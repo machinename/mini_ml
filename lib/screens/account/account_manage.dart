@@ -1,21 +1,17 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mini_ml/provider/app_provider.dart';
 import 'package:mini_ml/screens/account/account_display_name.dart';
-import 'package:mini_ml/screens/account/account_legal.dart';
-import 'package:mini_ml/screens/account/account_licenses.dart';
-import 'package:mini_ml/screens/account/account_privacy_and_security.dart';
+// import 'package:mini_ml/screens/account/account_phone.dart';
+import 'package:mini_ml/screens/account/account_privacy.dart';
 import 'package:mini_ml/screens/miscellaneous/re_auth.dart';
-import 'package:mini_ml/screens/miscellaneous/support_screen.dart';
+import 'package:mini_ml/screens/support/support_screen.dart';
 import 'package:mini_ml/utils/constants.dart';
 import 'package:mini_ml/utils/helpers.dart';
 import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'account_email.dart';
 
 class AccountManage extends StatefulWidget {
   const AccountManage({super.key});
@@ -33,8 +29,9 @@ class _AccountManageState extends State<AccountManage> {
     Navigator.popUntil(context, ModalRoute.withName('/'));
   }
 
-  void _pushToDisplayName() {
-    Helpers.pushTo(context, const AccountDisplayName());
+  void _pushToDisplayName(AppProvider appProvider) {
+    String displayName = appProvider.auth.currentUser!.displayName ?? "";
+    Helpers.pushTo(context, AccountDisplayName(displayName: displayName));
   }
 
   void _pushToReAuth(String route) {
@@ -46,20 +43,30 @@ class _AccountManageState extends State<AccountManage> {
     );
   }
 
-  void _pushToPhone() {
-    Helpers.pushTo(context, const AccountPrivacyAndSecurity());
+  // void _pushToPhone() {
+  //   Helpers.pushTo(context, const AccountPhone());
+  // }
+
+  void _pushToPrivacy() {
+    Helpers.pushTo(context, const AccountPrivacy());
   }
 
-  void _pushToPrivacyAndSecurity() {
-    Helpers.pushTo(context, const AccountPrivacyAndSecurity());
-  }
+  void _pushToOpenSourceSoftware() async {
+    try {
+      // final Uri uri = Uri(
+      //   scheme: 'https',
+      //   path: 'machinename.dev/Mini ML - Open Source Software.pdf',
+      // );
 
-  void _pushToLegal() {
-    Helpers.pushTo(context, const AccountLegal());
-  }
-
-  void _pushToLicenses() {
-    Helpers.pushTo(context, const AccountLicenses());
+      // if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      //   throw Exception('Could not launch ${uri.path}');
+      // }
+    } catch (error) {
+      _showSnackBar('Error Occured');
+      throw Exception(
+        error.toString(),
+      );
+    }
   }
 
   Future<void> _pushToTermsOfService() async {
@@ -120,24 +127,6 @@ class _AccountManageState extends State<AccountManage> {
     }
   }
 
-  // Future<void> _pushToSupport() async {
-  //   try {
-  //     final Uri uri = Uri(
-  //       scheme: 'https',
-  //       path: 'machinename.dev/contact',
-  //     );
-
-  //     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-  //       throw Exception('Could not launch ${uri.path}');
-  //     }
-  //   } catch (error) {
-  //     _showSnackBar('Error Occured');
-  //     throw Exception(
-  //       error.toString(),
-  //     );
-  //   }
-  // }
-
   void _pushToSupport() {
     Helpers.pushTo(context, const SupportScreen());
   }
@@ -153,19 +142,23 @@ class _AccountManageState extends State<AccountManage> {
     if (providerEmail != null) {
       email = providerEmail;
     }
-    String? providerPhoneNumber = appProvider.auth.currentUser!.phoneNumber;
-    var phoneNumber = "";
-    if (providerPhoneNumber != null) {
-      phoneNumber = providerPhoneNumber;
-    }
+    // String? providerPhoneNumber = appProvider.auth.currentUser!.phoneNumber;
+    // var phoneNumber = "";
+    // if (providerPhoneNumber != null) {
+    //   phoneNumber = providerPhoneNumber;
+    // }
 
     return ListView(physics: const ClampingScrollPhysics(), children: [
-      const ListTile(title: Text('Info')),
+      const ListTile(
+          title: Text(
+        'Info',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      )),
       ListTile(
           title: const Text("Display Name"),
           subtitle: displayName.isNotEmpty ? Text(displayName) : null,
           leading: const Icon(Icons.person_outlined),
-          onTap: () => _pushToDisplayName(),
+          onTap: () => _pushToDisplayName(appProvider),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
         leading: const Icon(Icons.email_outlined),
@@ -174,15 +167,15 @@ class _AccountManageState extends State<AccountManage> {
         onTap: () => _pushToReAuth('email'),
         trailing: const Icon(Icons.chevron_right_sharp),
       ),
-      ListTile(
-        leading: const Icon(Icons.phone_outlined),
-        title: const Text(
-          "Phone",
-        ),
-        subtitle: phoneNumber.isNotEmpty ? Text(phoneNumber) : null,
-        onTap: () => _pushToPhone(),
-        trailing: const Icon(Icons.chevron_right_sharp),
-      ),
+      // ListTile(
+      //   leading: const Icon(Icons.phone_outlined),
+      //   title: const Text(
+      //     "Phone",
+      //   ),
+      //   subtitle: phoneNumber.isNotEmpty ? Text(phoneNumber) : null,
+      //   onTap: () => _pushToPhone(),
+      //   trailing: const Icon(Icons.chevron_right_sharp),
+      // ),
       const ListTile(
           title: Text(
         'General',
@@ -191,7 +184,7 @@ class _AccountManageState extends State<AccountManage> {
       ListTile(
         leading: const Icon(Icons.notifications_outlined),
         title: const Text("Notifications"),
-        onTap: () => _pushToPrivacyAndSecurity(),
+        onTap: () => (),
         trailing: const Icon(Icons.chevron_right_sharp),
       ),
       ListTile(
@@ -199,7 +192,9 @@ class _AccountManageState extends State<AccountManage> {
           title: const Text("Mini ML - Support"),
           onTap: () => _pushToSupport(),
           trailing: const Icon(Icons.chevron_right_sharp)),
-      const ListTile(title: Text('Data & Security')),
+      const ListTile(
+          title: Text('Data & Security',
+              style: TextStyle(fontWeight: FontWeight.bold))),
       ListTile(
           leading: const Icon(Icons.fingerprint_outlined),
           title: const Text("Enable Biometric Authentication"),
@@ -208,91 +203,99 @@ class _AccountManageState extends State<AccountManage> {
       ListTile(
           leading: const Icon(Icons.password_outlined),
           title: const Text("Password"),
-          onTap: () => (),
+          onTap: () => _pushToReAuth('password'),
           trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
           leading: const Icon(Icons.privacy_tip_outlined),
           title: const Text("Privacy"),
-          onTap: () => (),
+           onTap: () => _pushToPrivacy(),
           trailing: const Icon(Icons.chevron_right_sharp)),
-      const Divider(),
+      Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: Constants.getPaddingHorizontal(context)),
+          child: const Divider()),
       Column(children: [
-        ListTile(
-          title: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: Constants.getPaddingHorizontal(context) * 4,
+        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    _pushToPrivacyPolicy();
+                  },
+                text: 'PRIVACY POLICY',
+                style: const TextStyle(
+                  color: Colors.blue,
+                ),
+                children: [
+                  const TextSpan(
+                      text: ' / ',
+                      style: TextStyle(
+                        color: Colors.blue,
+                      )),
+                  TextSpan(
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          _pushToTermsOfService();
+                        },
+                      text: 'TERMS OF SERVICE',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                      )),
+                ])),
+        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                _pushToOpenSourceSoftware();
+              },
+            text: 'OPEN SOURCE SOFTWARE',
+            style: const TextStyle(
+              color: Colors.blue,
             ),
-            child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                    text: "Mini ML's ",
-                    style: const TextStyle(color: Colors.black),
-                    children: [
-                      TextSpan(
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              _pushToPrivacyPolicy();
-                            },
-                          text: 'Privacy Policy',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: Colors.blue,
-                          )),
-                      const TextSpan(text: ', '),
-                      TextSpan(
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              _pushToTermsOfService();
-                            },
-                          text: 'Terms of Service',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: Colors.blue,
-                          )),
-                      const TextSpan(text: ', and '),
-                      TextSpan(
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              _pushToTermsOfService();
-                            },
-                          text: 'Open Source Software',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: Colors.blue,
-                          )),
-                      const TextSpan(text: '.'),
-                    ])),
           ),
         ),
-        const ListTile(
-            title: Text('GitHub Twitter', textAlign: TextAlign.center)),
-        const ListTile(
-            title: Text('App Version - 1.00.0', textAlign: TextAlign.center))
+        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  _signOut(appProvider);
+                },
+              text: 'LOG OUT',
+              style: const TextStyle(
+                color: Colors.blue,
+              ),
+            )),
       ]),
     ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
     return AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_sharp),
-          onPressed: () {
-            _back();
-          },
-        ),
-        title: const Text("Account"),
-        centerTitle: false,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: TextButton(
-                  onPressed: () {
-                    _signOut(appProvider);
-                  },
-                  child: const Text("Sign Out")))
-        ]);
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_sharp),
+        onPressed: () {
+          _back();
+        },
+      ),
+      title: const Text("Account"),
+      centerTitle: false,
+      // actions: [
+      //   Padding(
+      //       padding: const EdgeInsets.symmetric(
+      //         horizontal: 4,
+      //       ),
+      //       child: TextButton(
+      //           onPressed: () {
+      //             _signOut(appProvider);
+      //           },
+      //           child: const Text("LOG OUT")))
+      // ]
+    );
   }
 
   @override

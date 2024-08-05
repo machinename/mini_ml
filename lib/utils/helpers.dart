@@ -73,6 +73,11 @@ class Helpers {
     //     },
     //   ),
     // );
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => page,
+            maintainState: false,
+            allowSnapshotting: false));
   }
 }

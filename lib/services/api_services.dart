@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mini_ml/models/model.dart';
 import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/models/resource.dart';
 import 'package:pointycastle/export.dart';

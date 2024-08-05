@@ -21,7 +21,8 @@ class Login extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('mini ML', textAlign: TextAlign.center),
+        // const Image(image: AssetImage('assets/images/logo.png')),
+        const Text('Mini ML', textAlign: TextAlign.center, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24)) ,
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -29,13 +30,13 @@ class Login extends StatelessWidget {
               onPressed: () {
                 _pushToSignOnScreen(context, 'sign_in');
               },
-              child: const Text('Sign In'),
+              child: const Text('Sign In', style: TextStyle(color: Colors.black)),
             ),
             TextButton(
               onPressed: () {
                 _pushToSignOnScreen(context, 'sign_up');
               },
-              child: const Text('Sign Up'),
+              child: const Text('Sign Up', style: TextStyle(color: Colors.black)),
             ),
           ],
         ),

@@ -42,6 +42,27 @@ class Validators {
     return null; // Return null if no validation errors.
   }
 
+
+  /// Validates a display name field.
+  ///
+  /// [value] - The name string to validate.
+  ///
+  /// Returns an error message if validation fails, or null if the input is valid.
+  static String? displayNameValidator(String? value) {
+    // Check if the value is empty or null.
+    if (value == null || value.isEmpty) {
+      return 'Please enter a display name';
+    }
+    if (value.length > 40) {
+      return 'Display name must be less than or equal to 40 characters';
+    }
+    // Ensure the name contains only valid characters (letters, numbers, dashes, and underscores).
+    if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(value.trim())) {
+      return 'Only letters, numbers, dashes, and underscores allowed';
+    }
+    return null; // Return null if no validation errors.
+  }
+
   /// Validates a URL field.
   ///
   /// [value] - The URL string to validate.

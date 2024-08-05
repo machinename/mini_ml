@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:mini_ml/models/project.dart';
 import 'package:mini_ml/provider/app_provider.dart';
@@ -113,12 +111,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
         leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context)),
-        title: const Text('ProjectScreen'),
+        title: const Text('Projects'),
         centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.add_box_sharp,
+              Icons.add_box_outlined,
               // color: appProvider.projects.isEmpty && _showGreenIcon
               //     ? Colors.green
               //     : null, // Conditionally set color

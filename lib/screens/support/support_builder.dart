@@ -20,7 +20,7 @@ class SupportBuilder extends StatelessWidget {
     return AppBar(
       automaticallyImplyLeading: false,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_sharp),
+          icon: const Icon(Icons.arrow_back_sharp),
         onPressed: () {
           _back(context);
         },

@@ -65,7 +65,7 @@ class _AccountLegalState extends State<AccountLegal> {
   _buildBody(AppProvider appProvider) {
     return ListView(
       physics: const ClampingScrollPhysics(),
-      children: [
+      children: const [
         // ),
       ],
     );

@@ -6,7 +6,8 @@ import 'package:mini_ml/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 
 class AccountDisplayName extends StatefulWidget {
-  const AccountDisplayName({super.key});
+  final String displayName;
+  const AccountDisplayName({super.key, required this.displayName});
 
   @override
   State<AccountDisplayName> createState() => _AccountDisplayNameState();
@@ -14,22 +15,39 @@ class AccountDisplayName extends StatefulWidget {
 
 class _AccountDisplayNameState extends State<AccountDisplayName> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _displayNameController = TextEditingController();
   bool _isSavePressed = false;
+  bool _isDisplayNameEmpty = true;
+  bool _showRemoveButton = true;
+  String _newDisplayName = "";
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      if (widget.displayName.isEmpty) {
+        _showRemoveButton = false;
+      }
+    });
+  }
 
   _back() {
     Navigator.pop(context);
   }
 
-  void _updateDisplayName(AppProvider appProvider) async {
+  void _updateDisplayName(AppProvider appProvider, {bool? clear}) async {
     try {
       var currentUser = appProvider.auth.currentUser;
 
       if (currentUser != null) {
         appProvider.setIsLoading(true);
-        await currentUser.updateDisplayName(_displayNameController.text);
-        appProvider.setIsLoading(false);
+
+        if (clear != null && clear) {
+          await currentUser.updateDisplayName(null);
+        } else {
+          await currentUser.updateDisplayName(_newDisplayName);
+        }
         _back();
+        appProvider.setIsLoading(false);
       }
     } catch (error) {
       appProvider.setIsLoading(false);
@@ -65,57 +83,93 @@ class _AccountDisplayNameState extends State<AccountDisplayName> {
         ),
       Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: Constants.getPaddingHorizontal(context),
-              vertical: Constants.getPaddingVertical(context)),
+            vertical: Constants.getPaddingVertical(context),
+            horizontal: Constants.getPaddingHorizontal(context),
+          ),
           child: ListView(
             physics: const ClampingScrollPhysics(),
             children: [
               Form(
-                key: _formKey,
-                child: TextFormField(
-                  enabled: !appProvider.isLoading,
-                  controller: _displayNameController,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    labelText: 'Display Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (_isSavePressed) {
-                      return Validators.nameValidator(value, "Display Name");
-                    }
-                    return null;
-                  },
-                  onChanged: (_) {
-                    setState(
-                      () {},
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: Constants.getPaddingVertical(context) - 4),
-              ElevatedButton(
-                style: ButtonStyle(
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero)),
-                ),
-                onPressed: _displayNameController.text.isNotEmpty &&
-                        !appProvider.isLoading
-                    ? () {
-                        setState(
-                          () {
-                            _isSavePressed = true;
-                          },
-                        );
-                        if (_formKey.currentState != null &&
-                            _formKey.currentState!.validate()) {
-                          _updateDisplayName(appProvider);
+                  key: _formKey,
+                  child: TextFormField(
+                      initialValue: widget.displayName,
+                      enabled: !appProvider.isLoading,
+                      keyboardType: TextInputType.multiline,
+                      decoration: const InputDecoration(
+                          labelText: 'Display Name',
+                          border: OutlineInputBorder()),
+                      validator: (value) {
+                        if (_isSavePressed) {
+                          return Validators.displayNameValidator(value);
                         }
-                      }
-                    : null,
-                child: const Text('Update'),
-              ),
+                        return null;
+                      },
+                      onChanged: (value) {
+                        _newDisplayName = value;
+                        setState(() {
+                          _isDisplayNameEmpty = _newDisplayName.isEmpty;
+                        });
+                        print("New Display Name - $_newDisplayName");
+                      })),
+              SizedBox(height: Constants.getPaddingVertical(context)),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                if (_showRemoveButton)
+                  TextButton(
+                      style: ButtonStyle(
+                          foregroundColor: appProvider.isLoading
+                              ? WidgetStateProperty.all(Colors.grey[300])
+                              : WidgetStateProperty.all(Colors.blue[800])),
+                      onPressed: !appProvider.isLoading
+                          ? () {
+                              _updateDisplayName(appProvider, clear: true);
+                            }
+                          : null,
+                      child: const Text('Remove')),
+                SizedBox(width: Constants.getPaddingHorizontal(context)),
+                TextButton(
+                    style: ButtonStyle(
+                        foregroundColor: appProvider.isLoading
+                            ? WidgetStateProperty.all(Colors.grey[300])
+                            : WidgetStateProperty.all(Colors.blue[800])),
+                    onPressed: !appProvider.isLoading
+                        ? () {
+                            _back();
+                          }
+                        : null,
+                    child: const Text('Cancel')),
+                SizedBox(width: Constants.getPaddingHorizontal(context)),
+                TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: _newDisplayName.toLowerCase() !=
+                                    widget.displayName.toLowerCase() &&
+                                !_isDisplayNameEmpty &&
+                                !appProvider.isLoading
+                            ? WidgetStateProperty.all(Colors.blue[800])
+                            : WidgetStateProperty.all(Colors.grey[300]),
+                        foregroundColor: _newDisplayName.toLowerCase() !=
+                                    widget.displayName.toLowerCase() &&
+                                !_isDisplayNameEmpty &&
+                                !appProvider.isLoading
+                            ? WidgetStateProperty.all(Colors.white)
+                            : WidgetStateProperty.all(Colors.grey[500])),
+                    onPressed: _newDisplayName.toLowerCase() !=
+                                widget.displayName.toLowerCase() &&
+                            !_isDisplayNameEmpty &&
+                            !appProvider.isLoading
+                        ? () {
+                            setState(
+                              () {
+                                _isSavePressed = true;
+                              },
+                            );
+                            if (_formKey.currentState != null &&
+                                _formKey.currentState!.validate()) {
+                              _updateDisplayName(appProvider);
+                            }
+                          }
+                        : null,
+                    child: const Text('Save'))
+              ])
             ],
           ))
     ]);

@@ -47,7 +47,7 @@ class _AccountPhoneState extends State<AccountPhone> {
 
       if (currentUser != null) {
         appProvider.setIsLoading(true);
-        await currentUser.verifyBeforeUpdateEmail(_emailController.text);
+        // await currentUser.updatePhoneNumber(phoneCredential)
         appProvider.setIsLoading(false);
         _showVerifyEmailDialog(appProvider);
       }

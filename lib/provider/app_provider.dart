@@ -249,7 +249,7 @@ class AppProvider extends ChangeNotifier {
           .get();
 
       final fetchedProjects = projectsSnapshot.docs
-          .map((doc) => Project.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => Project.fromJson(doc.data()))
           .toList();
 
       if (_projects != fetchedProjects) {

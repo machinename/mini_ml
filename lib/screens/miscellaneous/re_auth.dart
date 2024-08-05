@@ -70,37 +70,17 @@ class _ReAuthState extends State<ReAuth> {
   }
 
   _buildBody(AppProvider appProvider) {
-    String message = '';
-    if (widget.route == '') {
-    } else {}
-
-    switch (widget.route) {
-      case 'email':
-        message = 'Reauthenticate to update your email.';
-        break;
-      case 'delete':
-        message = 'Reauthenticate to access account deletion.';
-        break;
-      case 'password':
-        message = 'Reauthenticate to update your password.';
-        break;
-      default:
-        message = '';
-    }
     return Stack(children: [
       if (appProvider.isLoading)
         const Center(
           child: CircularProgressIndicator.adaptive(),
         ),
-      ListView(
-          physics: const ClampingScrollPhysics(),
+      Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: Constants.getPaddingHorizontal(context),
             vertical: Constants.getPaddingVertical(context),
+            horizontal: Constants.getPaddingHorizontal(context),
           ),
-          children: [
-            Text(message, textAlign: TextAlign.left),
-            SizedBox(height: Constants.getPaddingVertical(context)),
+          child: ListView(physics: const ClampingScrollPhysics(), children: [
             Form(
                 key: _formKey,
                 child: TextFormField(
@@ -122,28 +102,63 @@ class _ReAuthState extends State<ReAuth> {
                     onChanged: (_) {
                       setState(() {});
                     })),
-            SizedBox(height: Constants.getPaddingVertical(context) - 4),
-            ElevatedButton(
-              style: ButtonStyle(
-                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero)),
-              ),
-              onPressed:
-                  _passwordController.text.isNotEmpty && !appProvider.isLoading
+            SizedBox(height: Constants.getPaddingVertical(context)),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              TextButton(
+                  style: ButtonStyle(
+                      foregroundColor: appProvider.isLoading
+                          ? WidgetStateProperty.all(Colors.grey[300])
+                          : WidgetStateProperty.all(Colors.blue[800])),
+                  onPressed: !appProvider.isLoading
                       ? () {
-                          _reAuthUser(appProvider);
+                          _back();
                         }
                       : null,
-              child: const Text('Next'),
-            )
-          ])
+                  child: const Text('Cancel')),
+              SizedBox(width: Constants.getPaddingHorizontal(context)),
+              TextButton(
+                style: ButtonStyle(
+                    backgroundColor: _passwordController.text.isNotEmpty &&
+                            !appProvider.isLoading
+                        ? WidgetStateProperty.all(Colors.blue[800])
+                        : WidgetStateProperty.all(Colors.grey[300]),
+                    foregroundColor: _passwordController.text.isNotEmpty &&
+                            !appProvider.isLoading
+                        ? WidgetStateProperty.all(Colors.white)
+                        : WidgetStateProperty.all(Colors.grey[500])),
+                onPressed: _passwordController.text.isNotEmpty &&
+                        !appProvider.isLoading
+                    ? () {
+                        _reAuthUser(appProvider);
+                      }
+                    : null,
+                child: const Text('Next'),
+              )
+            ])
+          ]))
     ]);
   }
 
   _buildAppBar(AppProvider appProvider) {
+    String message = '';
+    if (widget.route == '') {
+    } else {}
+
+    switch (widget.route) {
+      case 'email':
+        message = 'Email';
+        break;
+      case 'delete':
+        message = 'Account Deletion';
+        break;
+      case 'password':
+        message = 'Password Reset';
+        break;
+      default:
+        message = '';
+    }
     return AppBar(
-      title: const Text('Enter Password'),
+      title: Text(message),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_sharp),
         onPressed: () {

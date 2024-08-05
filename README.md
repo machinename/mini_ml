@@ -1,5 +1,5 @@
 # mini ML
-Welcome to mini ML, a minimalistic Flutter machine learning application.
+Welcome to mini ML, a minimalistic Flutter mini machine learning application.
 
 ## Tech Stack
 - **Frameworks**: Flutter
