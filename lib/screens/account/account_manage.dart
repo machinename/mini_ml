@@ -176,30 +176,15 @@ class _AccountManageState extends State<AccountManage> {
       //   onTap: () => _pushToPhone(),
       //   trailing: const Icon(Icons.chevron_right_sharp),
       // ),
-      const ListTile(
-          title: Text(
-        'General',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      )),
-      ListTile(
-        leading: const Icon(Icons.notifications_outlined),
-        title: const Text("Notifications"),
-        onTap: () => (),
-        trailing: const Icon(Icons.chevron_right_sharp),
-      ),
-      ListTile(
-          leading: const Icon(Icons.help_outline_outlined),
-          title: const Text("Mini ML - Support"),
-          onTap: () => _pushToSupport(),
-          trailing: const Icon(Icons.chevron_right_sharp)),
+
       const ListTile(
           title: Text('Data & Security',
               style: TextStyle(fontWeight: FontWeight.bold))),
-      ListTile(
-          leading: const Icon(Icons.fingerprint_outlined),
-          title: const Text("Enable Biometric Authentication"),
-          onTap: () => (),
-          trailing: const Icon(Icons.chevron_right_sharp)),
+      // ListTile(
+      //     leading: const Icon(Icons.fingerprint_outlined),
+      //     title: const Text("Enable Biometric Authentication"),
+      //     onTap: () => (),
+      //     trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
           leading: const Icon(Icons.password_outlined),
           title: const Text("Password"),
@@ -208,14 +193,30 @@ class _AccountManageState extends State<AccountManage> {
       ListTile(
           leading: const Icon(Icons.privacy_tip_outlined),
           title: const Text("Privacy"),
-           onTap: () => _pushToPrivacy(),
+          onTap: () => _pushToPrivacy(),
           trailing: const Icon(Icons.chevron_right_sharp)),
+      //           const ListTile(
+      //     title: Text(
+      //   'General',
+      //   style: TextStyle(fontWeight: FontWeight.bold),
+      // )),
+      // ListTile(
+      //   leading: const Icon(Icons.notifications_outlined),
+      //   title: const Text("Notifications"),
+      //   onTap: () => (),
+      //   trailing: const Icon(Icons.chevron_right_sharp),
+      // ),
+      // ListTile(
+      //     leading: const Icon(Icons.help_outline_outlined),
+      //     title: const Text("Mini ML - Support"),
+      //     onTap: () => _pushToSupport(),
+      //     trailing: const Icon(Icons.chevron_right_sharp)),
       Padding(
           padding: EdgeInsets.symmetric(
               horizontal: Constants.getPaddingHorizontal(context)),
           child: const Divider()),
       Column(children: [
-        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        SizedBox(height: Constants.getPaddingVertical(context) * 1.5),
         RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -243,7 +244,7 @@ class _AccountManageState extends State<AccountManage> {
                         color: Colors.blue,
                       )),
                 ])),
-        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        SizedBox(height: Constants.getPaddingVertical(context) * 1.5),
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
@@ -257,7 +258,21 @@ class _AccountManageState extends State<AccountManage> {
             ),
           ),
         ),
-        SizedBox(height: Constants.getPaddingVertical(context)*1.5),
+        SizedBox(height: Constants.getPaddingVertical(context) * 1.5),
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                _pushToSupport();
+              },
+            text: 'SUPPORT',
+            style: const TextStyle(
+              color: Colors.blue,
+            ),
+          ),
+        ),
+        SizedBox(height: Constants.getPaddingVertical(context) * 1.5),
         RichText(
             textAlign: TextAlign.center,
             text: TextSpan(

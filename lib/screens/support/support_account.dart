@@ -34,17 +34,17 @@ class SupportAccount extends StatelessWidget {
       //   onTap: () => (),
       //   trailing: const Icon(Icons.chevron_right_sharp),
       // ),
-      ListTile(
-        leading: const Icon(Icons.description_outlined),
-        title: const Text("Manage Notifications"),
-        onTap: () => (),
-        trailing: const Icon(Icons.chevron_right_sharp),
-      ),
-      ListTile(
-          leading: const Icon(Icons.description_outlined),
-          title: const Text("Enable Biometric Authentication"),
-          onTap: () => (),
-          trailing: const Icon(Icons.chevron_right_sharp)),
+      // ListTile(
+      //   leading: const Icon(Icons.description_outlined),
+      //   title: const Text("Manage Notifications"),
+      //   onTap: () => (),
+      //   trailing: const Icon(Icons.chevron_right_sharp),
+      // ),
+      // ListTile(
+      //     leading: const Icon(Icons.description_outlined),
+      //     title: const Text("Enable Biometric Authentication"),
+      //     onTap: () => (),
+      //     trailing: const Icon(Icons.chevron_right_sharp)),
       ListTile(
           leading: const Icon(Icons.description_outlined),
           title: const Text("Reset Password"),

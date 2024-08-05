@@ -106,13 +106,13 @@ class DashboardState extends State<Dashboard> {
           subtitle:
               Text('${appProvider.userStorageInMegaBytes} MB of 100 MB used'),
         ),
-        ListTile(
-          enabled: !appProvider.isLoading,
-          leading: const Icon(Icons.help_outline_outlined),
-          title: const Text("Support"),
-          onTap: () => _pushToSupport(),
-          trailing: const Icon(Icons.chevron_right_sharp),
-        ),
+        // ListTile(
+        //   enabled: !appProvider.isLoading,
+        //   leading: const Icon(Icons.help_outline_outlined),
+        //   title: const Text("Support"),
+        //   onTap: () => _pushToSupport(),
+        //   trailing: const Icon(Icons.chevron_right_sharp),
+        // ),
         if (emailVerified == false)
           Column(children: [
             ListTile(
